@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能制造与工业AI政策评估查询系统</title>
+<style>
+:root{--primary:#1a73e8;--primary-dark:#1557b0;--primary-light:#e8f0fe;--success:#34a853;--warning:#fbbc04;--danger:#ea4335;--purple:#9334e6;--teal:#00897b;--orange:#e8710a;--bg:#f5f7fa;--card:#ffffff;--text:#202124;--text2:#5f6368;--border:#dadce0;--shadow:0 1px 3px rgba(60,64,67,.12),0 1px 2px rgba(60,64,67,.08);--shadow-lg:0 4px 12px rgba(60,64,67,.15),0 2px 6px rgba(60,64,67,.1);--r:12px;--rs:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+.header{background:linear-gradient(135deg,#1a237e 0%,#0d47a1 40%,#01579b 70%,#006064 100%);color:#fff;padding:28px 24px 24px;position:sticky;top:0;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.header-inner{max-width:1320px;margin:0 auto}
+.header h1{font-size:24px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.header .subtitle{font-size:14px;opacity:.85;font-weight:400}
+.header .meta{font-size:12px;opacity:.6;margin-top:6px}
+.stats-bar{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.stat-item{background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:var(--rs);padding:8px 16px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.15)}
+.stat-number{font-size:22px;font-weight:700}.stat-label{font-size:12px;opacity:.8}
+.main{max-width:1320px;margin:0 auto;padding:20px}
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:var(--r);padding:4px;box-shadow:var(--shadow);margin-bottom:16px;overflow-x:auto}
+.tab{flex:1;padding:9px 14px;text-align:center;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .25s;white-space:nowrap}
+.tab:hover{background:var(--primary-light);color:var(--primary)}
+.tab.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(26,115,232,.3)}
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:220px;position:relative}
+.search-box input{width:100%;padding:9px 14px 9px 36px;border:2px solid var(--border);border-radius:var(--r);font-size:13px;outline:none;transition:border-color .2s;background:var(--card)}
+.search-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+.search-box .icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text2)}
+.sc-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);padding:4px 10px;border:none;border-radius:12px;font-size:11px;cursor:pointer;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;white-space:nowrap;transition:all .2s;box-shadow:0 1px 3px rgba(13,71,161,.3)}
+.sc-clear:hover{background:linear-gradient(135deg,#1976d2,#1565c0);box-shadow:0 2px 6px rgba(13,71,161,.4);transform:translateY(-50%) scale(1.03)}
+.sc-clear.active{background:linear-gradient(135deg,#e53935,#c62828);box-shadow:0 2px 6px rgba(198,40,40,.4)}
+.filter-select{padding:9px 12px;border:2px solid var(--border);border-radius:var(--r);font-size:13px;background:var(--card);cursor:pointer;outline:none;min-width:130px}
+.content-area{display:none}.content-area.active{display:block}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(370px,1fr));gap:14px}
+.policy-card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border-left:4px solid var(--primary);transition:all .25s;cursor:pointer}
+.policy-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.policy-card.t-national{border-left-color:var(--primary)}.policy-card.t-provincial{border-left-color:var(--teal)}.policy-card.t-city{border-left-color:#5c6bc0}
+.standard-card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border-left:4px solid var(--purple);transition:all .25s;cursor:pointer}
+.standard-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.framework-card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--success);transition:all .25s}
+.framework-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.tag-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.tag{display:inline-flex;padding:1px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-gj{background:#e8f0fe;color:#1a73e8}.tag-sj{background:#e0f2f1;color:#00695c}.tag-sj2{background:#e8eaf6;color:#3949ab}
+.tag-bz{background:#f3e5f5;color:#7b1fa2}.tag-zb{background:#fff3e0;color:#e65100}.tag-kj{background:#e8f5e9;color:#2e7d32}
+h3.cd{font-size:14px;font-weight:600;margin-bottom:6px;line-height:1.5}
+.info-row{display:flex;gap:12px;font-size:11.5px;color:var(--text2);margin-bottom:5px;flex-wrap:wrap}
+.info-row span{display:inline-flex;align-items:center;gap:2px}
+.desc{font-size:12.5px;color:var(--text2);line-height:1.7;margin-top:6px}
+.expand-content{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12.5px;line-height:1.8;color:var(--text2)}
+.expanded .expand-content{display:block}
+.expand-hint{font-size:11px;color:var(--primary);margin-top:6px;cursor:pointer}
+.view-link{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:var(--r);font-size:12px;color:#fff;background:linear-gradient(135deg,#1a73e8,#0d47a1);text-decoration:none;transition:all .2s;box-shadow:0 1px 3px rgba(13,71,161,.25)}
+.view-link:hover{background:linear-gradient(135deg,#1976d2,#1565c0);box-shadow:0 2px 8px rgba(13,71,161,.35);transform:translateY(-1px)}
+.std-code{font-family:"SF Mono","Fira Code",monospace;font-size:12.5px;color:var(--purple);font-weight:600;margin-bottom:5px}
+.level-flow{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;justify-content:center}
+.level-node{background:linear-gradient(135deg,var(--primary-light),#bbdefb);border-radius:var(--rs);padding:10px 14px;text-align:center;min-width:100px;flex:1}
+.level-node .ln{font-size:13px;font-weight:700;color:var(--primary-dark)}
+.level-node .lc{font-size:10.5px;color:var(--text2);margin-top:2px}
+.level-node .ld{font-size:10.5px;color:var(--text2);margin-top:3px}
+.level-arrow{display:flex;align-items:center;color:var(--border);font-size:18px}
+.compare-table-wrap{overflow-x:auto}
+.compare-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.compare-table th{background:linear-gradient(135deg,#1a237e,#0d47a1);color:#fff;padding:10px 12px;text-align:left;font-weight:600;font-size:11.5px;white-space:nowrap}
+.compare-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+.compare-table tr:hover td{background:#f8f9fa}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text2)}.empty-state .icon{font-size:40px;margin-bottom:12px}.empty-state p{font-size:13px}
+.count-badge{background:var(--primary);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:4px}
+@media(max-width:768px){.header{padding:18px 14px 16px}.header h1{font-size:19px}.main{padding:12px}.card-grid{grid-template-columns:1fr}.stats-bar{gap:6px}.stat-item{padding:6px 10px}.stat-number{font-size:17px}.tabs{overflow-x:auto}.tab{font-size:11px;padding:7px 10px}.level-flow{flex-direction:column;align-items:center}.level-arrow{transform:rotate(90deg)}}
+@media print{.header{position:static}.filter-bar,.tabs{display:none}.content-area{display:block!important}.policy-card,.standard-card,.framework-card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+.visit-counter{cursor:pointer;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px;font-size:11px;transition:background .2s;display:inline-flex;align-items:center;gap:1px}
+.visit-counter:hover{background:rgba(255,255,255,.25)}
+.stats-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center}
+.stats-modal-overlay.show{display:flex}
+.stats-modal{background:#fff;border-radius:14px;padding:28px 32px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);color:#333}
+.stats-modal h2{margin:0 0 6px;font-size:18px;color:#1a237e}
+.stats-modal .close-btn{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#999;padding:0}
+.stats-modal .close-btn:hover{color:#333}
+.stats-modal .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.stats-modal .stat-card{background:linear-gradient(135deg,#f5f7ff,#e8ecf8);border-radius:10px;padding:14px;text-align:center}
+.stats-modal .stat-card .val{font-size:28px;font-weight:700;color:#1a237e}
+.stats-modal .stat-card .lbl{font-size:12px;color:#666;margin-top:2px}
+.stats-modal .stat-card.accent{background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
+.stats-modal .recent-list{margin-top:14px;max-height:180px;overflow-y:auto}
+.stats-modal .recent-list h3{font-size:13px;color:#666;margin:0 0 8px}
+.stats-modal .recent-item{font-size:12px;color:#555;padding:4px 0;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between}
+.stats-modal .recent-item .time{color:#999;font-size:11px}
+.stats-modal .reset-btn{margin-top:16px;background:#ef5350;color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px}
+.stats-modal .reset-btn:hover{background:#d32f2f}
+/* ===== Admin Panel ===== */
+.admin-btn{position:absolute;right:16px;top:16px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:1px;box-shadow:0 2px 8px rgba(21,101,192,.3);transition:all .2s}
+.admin-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(21,101,192,.4)}
+.admin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:10000;display:none;align-items:center;justify-content:center}
+.admin-overlay.show{display:flex}
+.admin-modal{background:#fff;border-radius:12px;width:96%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.admin-header{padding:16px 20px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.admin-header h2{font-size:16px;color:#1565c0;margin:0}
+.admin-close{background:none;border:none;font-size:22px;color:#999;cursor:pointer;padding:4px 8px}
+.admin-close:hover{color:#333}
+.admin-body{padding:20px;overflow-y:auto;flex:1}
+.admin-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.admin-form .fg{display:flex;flex-direction:column;gap:4px}
+.admin-form .fg.full{grid-column:1/-1}
+.admin-form label{font-size:12px;color:#555;font-weight:600}
+.admin-form input,.admin-form select,.admin-form textarea{padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;transition:border .2s}
+.admin-form input:focus,.admin-form select:focus,.admin-form textarea:focus{border-color:#1565c0;outline:none;box-shadow:0 0 0 2px rgba(21,101,192,.15)}
+.admin-form textarea{resize:vertical;min-height:60px}
+.admin-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.admin-toolbar .abtn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.abtn-primary{background:#1565c0;color:#fff}.abtn-primary:hover{background:#0d47a1}
+.abtn-success{background:#2e7d32;color:#fff}.abtn-success:hover{background:#1b5e20}
+.abtn-warning{background:#e65100;color:#fff}.abtn-warning:hover{background:#bf360c}
+.abtn-danger{background:#c62828;color:#fff}.abtn-danger:hover{background:#b71c1c}
+.abtn-outline{background:#fff;color:#1565c0;border:1px solid #1565c0}.abtn-outline:hover{background:#e3f2fd}
+.admin-list{margin-top:16px}
+.admin-list-item{display:flex;align-items:center;padding:8px 12px;border:1px solid #eee;border-radius:6px;margin-bottom:6px;gap:10px;font-size:13px;transition:background .15s}
+.admin-list-item:hover{background:#f5f8fc}
+.admin-list-item .ali-id{color:#999;font-size:11px;min-width:28px}
+.admin-list-item .ali-type{background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.admin-list-item .ali-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333}
+.admin-list-item .ali-lv{color:#888;font-size:11px}
+.admin-list-item button{background:none;border:1px solid #ddd;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:11px;transition:all .15s}
+.admin-list-item .ali-edit:hover{border-color:#1565c0;color:#1565c0}
+.admin-list-item .ali-del:hover{border-color:#c62828;color:#c62828}
+.admin-search{padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;width:200px}
+.admin-search:focus{border-color:#1565c0;outline:none}
+.admin-pwd-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10001;display:none;align-items:center;justify-content:center}
+.admin-pwd-overlay.show{display:flex}
+.admin-pwd-box{background:#fff;border-radius:12px;padding:28px;width:340px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.admin-pwd-box h3{margin:0 0 6px;font-size:15px;color:#333}
+.admin-pwd-box p{font-size:12px;color:#888;margin:0 0 16px}
+.admin-pwd-box input{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;text-align:center;letter-spacing:3px;margin-bottom:12px}
+.admin-pwd-box input:focus{border-color:#1565c0;outline:none}
+.admin-pwd-box .pwd-btns{display:flex;gap:8px;justify-content:center}
+.admin-export-hint{background:#fff8e1;border:1px solid #ffcc02;border-radius:8px;padding:10px 14px;font-size:12px;color:#6d4c00;margin-top:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-inner" style="position:relative">
+<button class="admin-btn" onclick="showAdminPwd()">&#128272; 管理</button>
+<h1>智能制造与工业AI政策评估查询系统</h1>
+<div class="subtitle">全国政策文件 / 评估标准 / 指标体系 / 梯度框架 一站式检索</div>
+<div class="meta">数据更新：2026年7月 | 涵盖国家级/省级/市级政策、国家标准、行业/团体标准、评估指标体系 <span class="visit-counter" onclick="showStats()" title="点击查看统计详情">&#128202; 访问 <span id="vc">0</span> 次 | 查询 <span id="qc">0</span> 次</span></div>
+<div class="stats-bar">
+<div class="stat-item"><span class="stat-number" id="s0">0</span><span class="stat-label">总条目</span></div>
+<div class="stat-item"><span class="stat-number" id="s1">0</span><span class="stat-label">政策文件</span></div>
+<div class="stat-item"><span class="stat-number" id="s2">0</span><span class="stat-label">评估标准</span></div>
+<div class="stat-item"><span class="stat-number" id="s3">0</span><span class="stat-label">指标体系</span></div>
+<div class="stat-item"><span class="stat-number" id="s4">0</span><span class="stat-label">梯度框架</span></div>
+</div></div></div>
+
+<div class="main">
+
+<div class="stats-modal-overlay" id="statsModal">
+<div class="stats-modal">
+<button class="close-btn" onclick="hideStats()">&times;</button>
+<h2>使用统计</h2>
+<div class="stats-grid">
+<div class="stat-card"><div class="val" id="mv-visits">0</div><div class="lbl">累计访问</div></div>
+<div class="stat-card accent"><div class="val" id="mv-queries">0</div><div class="lbl">累计查询</div></div>
+<div class="stat-card"><div class="val" id="mv-today-v">0</div><div class="lbl">今日访问</div></div>
+<div class="stat-card accent"><div class="val" id="mv-today-q">0</div><div class="lbl">今日查询</div></div>
+</div>
+<div id="mv-base-info" style="text-align:center;font-size:11px;color:#999;margin:4px 0 8px"></div>
+<div class="recent-list">
+<h3>最近查询记录</h3>
+<div id="recentList"></div>
+</div>
+<button class="reset-btn" onclick="resetStats()">重置统计</button>
+</div>
+</div>
+<!-- Admin Password Gate -->
+<div class="admin-pwd-overlay" id="adminPwdOverlay">
+<div class="admin-pwd-box">
+<h3>管理面板</h3>
+<p>请输入管理密码</p>
+<input type="password" id="adminPwdInput" placeholder="密码" onkeydown="if(event.key==='Enter')checkAdminPwd()">
+<div class="pwd-btns">
+<button class="abtn abtn-primary" onclick="checkAdminPwd()">确认</button>
+<button class="abtn abtn-outline" onclick="hideAdminPwd()">取消</button>
+</div>
+</div>
+</div>
+<!-- Admin Panel -->
+<div class="admin-overlay" id="adminOverlay">
+<div class="admin-modal">
+<div class="admin-header">
+<h2>&#128221; 政策数据管理面板</h2>
+<button class="admin-close" onclick="hideAdmin()">&times;</button>
+</div>
+<div class="admin-body">
+<div class="admin-toolbar">
+<button class="abtn abtn-primary" onclick="showAddForm()">+ 新增条目</button>
+<button class="abtn abtn-success" onclick="exportHTML()">&#128190; 导出HTML部署文件</button>
+<button class="abtn abtn-warning" onclick="importJSON()">&#128228; 导入JSON</button>
+<input type="text" class="admin-search" id="adminSearch" placeholder="搜索条目..." oninput="renderAdminList()">
+<span style="font-size:12px;color:#888" id="adminCount"></span>
+</div>
+<div id="adminFormArea" style="display:none">
+<div class="admin-form" id="adminForm">
+<div class="fg"><label>类型</label><select id="af_t"><option value="policy">政策文件</option><option value="standard">评估标准</option><option value="indicator">指标体系</option><option value="framework">梯度框架</option></select></div>
+<div class="fg"><label>层级</label><select id="af_lv"><option value="国家级">国家级</option><option value="省级">省级</option><option value="市级">市级</option><option value="国家标准">国家标准</option><option value="行业标准">行业标准</option><option value="团体标准">团体标准</option></select></div>
+<div class="fg"><label>领域</label><input id="af_dm" value="智能制造" placeholder="如：智能制造、AI+制造"></div>
+<div class="fg"><label>年份</label><input id="af_yr" type="number" value="2026" min="2015" max="2030"></div>
+<div class="fg full"><label>名称</label><input id="af_nm" placeholder="政策/标准全称"></div>
+<div class="fg full"><label>发布单位</label><input id="af_dn" placeholder="如：工业和信息化部"></div>
+<div class="fg"><label>文号</label><input id="af_docNo" placeholder="如：工信部规〔2026〕1号，无则填-"></div>
+<div class="fg"><label>原文链接</label><input id="af_url" placeholder="https://..."></div>
+<div class="fg full"><label>摘要</label><textarea id="af_desc" rows="2" placeholder="简要描述，1-2句话"></textarea></div>
+<div class="fg full"><label>详细内容</label><textarea id="af_detail" rows="4" placeholder="详细说明，包含核心奖补标准、关键条款等"></textarea></div>
+<div class="fg full"><label>标签（逗号分隔）</label><input id="af_tags" placeholder="如：四川,智改数转,奖补"></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:14px">
+<button class="abtn abtn-success" onclick="saveEntry()">&#128190; 保存条目</button>
+<button class="abtn abtn-outline" onclick="cancelForm()">取消</button>
+</div>
+</div>
+<div class="admin-list" id="adminList"></div>
+<div class="admin-export-hint" id="adminExportHint">
+<b>导出说明：</b>新增/编辑的条目暂存于浏览器。点击「导出HTML部署文件」会下载完整的HTML文件，将该文件拖拽到 Netlify 项目页面即可完成更新部署。<br>建议每次导出前确认所有新增条目已保存。
+</div>
+</div>
+</div>
+</div>
+<div class="tabs">
+<div class="tab active" data-tab="all">全部 <span class="count-badge" id="cb-all">0</span></div>
+<div class="tab" data-tab="policy">政策文件 <span class="count-badge" id="cb-policy">0</span></div>
+<div class="tab" data-tab="standard">评估标准 <span class="count-badge" id="cb-standard">0</span></div>
+<div class="tab" data-tab="indicator">指标体系 <span class="count-badge" id="cb-indicator">0</span></div>
+<div class="tab" data-tab="framework">梯度框架 <span class="count-badge" id="cb-framework">0</span></div>
+<div class="tab" data-tab="compare">对比总览</div>
+</div>
+
+<div class="filter-bar">
+<div class="search-box"><span class="icon">&#128269;</span><input type="text" id="si" placeholder="搜索名称、标准号、文号、关键词..."><button class="sc-clear" id="sc-btn" onclick="scClick()" title="四川专区：快速筛选四川省级及市州政策">&#127795; 四川专区</button></div>
+<select class="filter-select" id="f1"><option value="">所有层级</option><option value="国家级">国家级</option><option value="省级">省级</option><option value="市级">市级</option><option value="国家标准">国家标准</option><option value="行业标准">行业标准</option><option value="团体标准">团体标准</option></select>
+<select class="filter-select" id="f2"><option value="">所有领域</option><option value="智能制造">智能制造</option><option value="工业AI">工业AI</option><option value="工业互联网">工业互联网</option><option value="数字化转型">数字化转型</option><option value="标准体系">标准体系</option><option value="工业安全">工业安全</option></select>
+<select class="filter-select" id="f3"><option value="">所有年份</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2019-2020">2019-2020</option></select>
+</div>
+
+<div class="content-area active" id="tab-all"><div class="card-grid" id="g-all"></div></div>
+<div class="content-area" id="tab-policy"><div class="card-grid" id="g-policy"></div></div>
+<div class="content-area" id="tab-standard"><div class="card-grid" id="g-standard"></div></div>
+<div class="content-area" id="tab-indicator"><div class="card-grid" id="g-indicator"></div></div>
+<div class="content-area" id="tab-framework"><div class="card-grid" id="g-framework"></div></div>
+<div class="content-area" id="tab-compare"><div class="compare-table-wrap" id="g-compare"></div></div>
+</div>
+
+<script>
+var D=[{id:1,t:'policy',lv:'国家级',dm:'智能制造',nm:'十四五智能制造发展规划',dn:'工信部等八部门',yr:2021,docNo:'-',desc:'贯彻落实十四五规划纲要，系统部署智能制造发展路径，推动制造业数字化转型。规划提出到2025年规模以上制造业企业大部分实现数字化网络化，重点行业骨干企业初步应用智能化。',detail:'核心目标：到2025年，70%规模以上制造业企业基本实现数字化网络化；建成500个以上引领行业发展的智能制造示范工厂。重点任务：智能制造技术攻关、示范工厂建设、行业应用推广、标准体系建设等。该规划是十四五期间智能制造领域最核心的顶层设计文件。构建智能工厂、解决方案、标准体系"三位一体"工作体系。',tags:['智能制造','顶层规划','十四五'],url:'https://www.miit.gov.cn/zwgk/zcwj/wjfb/tz/art/2021/art_1c779648523c40f3a0e2ea044ff8f24b.html'},
+{id:2,t:'policy',lv:'国家级',dm:'工业AI',nm:'国务院关于深入实施人工智能+行动的意见',dn:'国务院',yr:2025,docNo:'国发〔2025〕11号',desc:'国务院发布的人工智能+行动顶层意见，首次在国家级政策中提出"智能体即服务"新业态，推动AI与经济社会各行业深度融合，重塑生产生活范式。',detail:'核心要点：(1)提出"智能体即服务"新业态，推动智能体从学术概念走向产业化；(2)设定到2027年和2030年的发展里程碑；(3)强调AI与制造业深度融合，推动AI大模型嵌入研发设计、生产制造全链条；(4)加快形成人机协同、跨界融合、共创分享的智能经济和智能社会新形态，促进生产力革命性跃迁。该文件是AI赋能工业领域的最高层纲领。',tags:['工业AI','人工智能+','国务院','智能体'],url:'https://www.gov.cn/gongbao/2025/issue_12266/202509/content_7039598.html'},
+{id:3,t:'policy',lv:'国家级',dm:'工业AI',nm:'人工智能+制造专项行动实施意见',dn:'工信部等八部门',yr:2025,docNo:'工信部联科〔2025〕279号',desc:'八部门联合实施，围绕创新筑基、赋智升级、产品突破部署七大重点任务，要求AI大模型深度嵌入研发设计、中试验证、生产制造全链条，促进制造业智能化转型。',detail:'七大重点任务：(1)创新筑基——突破工业AI基础理论与关键技术；(2)赋智升级——推进AI嵌入研发设计、生产制造、经营管理全链条；(3)产品突破——推动AI工业软件、智能装备等创新产品研发；(4)应用推广——在重点行业建设AI应用标杆；(5)生态构建——培育产业生态和公共服务平台；(6)安全保障——强化工业数据安全和AI安全治理；(7)开放合作——推进国际交流与标准互认。目标：到2027年制造业AI应用水平显著提升。',tags:['工业AI','专项行动','AI+制造','七项任务'],url:'https://www.miit.gov.cn/jgsj/kjs/wjfb/art/2026/art_5ea5b1663f264fcea69df0ab00d1f6f3.html'},
+{id:4,t:'policy',lv:'国家级',dm:'工业互联网',nm:'关于推动工业互联网高质量发展的实施意见',dn:'工信部等八部门',yr:2026,docNo:'工信部联信管〔2026〕152号',desc:'2026工业互联网大会发布，部署基础设施、技术创新、融合应用、安全保障、产业生态5方面18项任务，提出到2030年核心产业增加值突破2.5万亿元。',detail:'目标指标：到2030年，(1)核心产业增加值突破2.5万亿元；(2)建设5万张工业5G专网；(3)打造5个左右具有国际影响力的综合型平台；(4)融合应用实现207个工业中类全覆盖。到2035年，建成全球领先的工业互联网基础设施体系和技术产业体系。五大方面18项任务涵盖网络升级、标识解析、平台赋能、数据流通、安全防护等全链条。强调推动工业互联网与AI双向融合。',tags:['工业互联网','高质量发展','2.5万亿','5万张5G专网'],url:'https://www.miit.gov.cn/zwgk/zcwj/wjfb/tz/art/2026/art_5f76aa6e3a4745d2bd96ee0010ec8459.html'},
+{id:5,t:'policy',lv:'国家级',dm:'标准体系',nm:'国家智能制造标准体系建设指南(2024版)',dn:'工信部、国家标准委',yr:2025,docNo:'-',desc:'在2021版基础上优化标准体系架构，提出到2026年制修订100项以上国家标准和行业标准，构建适应新型工业化发展的智能制造标准体系。',detail:'核心内容：(1)提出"基础共性+行业应用"双轨标准体系架构；(2)新增人工智能赋能、数字孪生、工业数据空间等前沿方向标准需求；(3)完善生命周期、系统层级、智能功能三维架构标准分类；(4)建立标准研制、验证、应用推广的闭环机制。2024版对原2021版进行了全面升级，新增50余项标准需求。',tags:['标准体系','建设指南','100项标准','2024版'],url:'https://www.gov.cn/zhengce/zhengceku/202504/content_7020558.htm'},
+{id:6,t:'policy',lv:'国家级',dm:'智能制造',nm:'智能工厂梯度培育行动（六部门联合）',dn:'工信部等六部门',yr:2024,docNo:'-',desc:'构建"基础级—先进级—卓越级—领航级"四级智能工厂梯度培育体系，组织各地开展智能工厂培育认定工作。配套发布要素条件(2025年版)。',detail:'四级体系：基础级要求开展数字化网络化基础能力建设，实现核心数据实时采集和关键工序自动化；先进级要求提升集成能力，实现生产经营数据互通共享；卓越级要求实现精准管控和动态优化，业务与AI深度集成；领航级要求实现全链条智能化，引领产业模式变革。配套发布《智能工厂梯度培育要素条件(2025年版)》，明确各等级申报条件和CMMM等级要求。',tags:['智能工厂','梯度培育','四级体系','六部门'],url:'https://www.miit.gov.cn/zwgk/zcwj/wjfb/tz/art/2024/art_71b504e8f1d5444a988390593aeadf0b.html'},
+{id:7,t:'policy',lv:'国家级',dm:'智能制造',nm:'智能制造系统解决方案揭榜挂帅工作',dn:'工信部、市场监管总局',yr:2023,docNo:'-',desc:'面向原材料、高端装备、消费品、电子信息等重点行业，发掘培育掌握核心技术、深耕细分行业的专业化供应商，2023年度130个项目通过验收。',detail:'工作体系：聚焦智能工厂建设堵点痛点，从场景难题提炼—关键技术突破—智能装备开发—解决方案形成—工程化应用和迭代，形成完整技术链路。覆盖汽车总装智能化柔性生产线、基于机器视觉的质量精益管控等典型场景。2023年度全国130个项目通过验收，构建智能工厂、解决方案、标准体系"三位一体"智能制造工作体系。',tags:['揭榜挂帅','系统解决方案','130项','三位一体'],url:'https://www.miit.gov.cn/jgsj/zbys/wjfb/art/2024/art_f8be99c271d747a9bd7882cdb0ecfa25.html'},
+{id:8,t:'policy',lv:'国家级',dm:'智能制造',nm:'智能检测装备创新产品征集工作方案',dn:'工信部等五部门',yr:2024,docNo:'-',desc:'征集智能检测装备创新产品，推动检测装备智能化升级，服务智能制造质量管控环节。面向在线检测、无损检测、视觉检测等重点方向。',detail:'征集方向：(1)在线智能检测装备——实现生产过程实时质量监控与反馈控制；(2)无损检测装备——满足关键零部件和关键工序的无损检测需求；(3)视觉检测装备——基于AI视觉技术实现产品外观、尺寸等自动检测；(4)智能传感器——支撑检测数据的高精度采集与传输。要求产品具有自主知识产权，技术指标达到国内领先或国际先进水平。',tags:['智能检测','装备创新','质量管控','五部门'],url:'https://www.miit.gov.cn/ztzl/rdzt/znzzxggz/wjfb/art/2023/art_386acb9b12a04bd79a2520100accd756.html'},
+{id:9,t:'policy',lv:'国家级',dm:'工业AI',nm:'工业互联网创新发展行动计划（2021-2023年）',dn:'工信部',yr:2021,docNo:'-',desc:'系统推进工业互联网网络、平台、安全、数据四大体系建设，推动工业互联网创新发展。是十四五初期工业互联网领域核心行动计划。',detail:'五大行动11项工程：(1)网络体系强基行动——5G+工业互联网、标识解析体系完善；(2)数据赋能提升行动——工业数据资源管理和流通；(3)平台体系壮大行动——跨行业跨领域平台培育；(4)安全体系保障行动——安全监测和应急处置能力提升；(5)应用推广行动——重点行业融合应用。该计划为后续工业互联网高质量发展奠定了基础框架。',tags:['工业互联网','创新发展','行动计划','5G+'],url:'https://www.gov.cn/zhengce/zhengceku/2021-01/13/content_5579519.htm'},
+{id:10,t:'policy',lv:'国家级',dm:'智能制造',nm:'智能制造标准应用试点工作方案',dn:'国家标准委、工信部',yr:2025,docNo:'-',desc:'组织开展智能制造标准应用试点工作，推动标准在制造业各领域的实际应用与验证，已下达两批试点项目。',detail:'试点目标：选择重点行业和重点领域，开展智能制造标准的应用验证和推广。试点内容涵盖智能工厂建设标准、数字化车间标准、工业互联网标准、工业数据标准等。第一批和第二批试点项目已陆续下达，通过试点促进标准研制与产业需求对接，推动标准落地实施。',tags:['标准试点','标准应用','验证推广','两批次'],url:'https://www.miit.gov.cn/xwdt/gxdt/sjdt/art/2023/art_0a3d41018f4c4506b40e4687bd24be4b.html'},
+{id:11,t:'policy',lv:'国家级',dm:'工业AI',nm:'矿山领域机器人典型应用场景征集',dn:'国家矿山安监局、工信部',yr:2025,docNo:'-',desc:'面向矿山领域征集机器人典型应用场景，推动机器人在矿山安全生产中的深度应用，是智能制造向特殊行业延伸的重要举措。',detail:'征集方向：(1)采掘机器人——自动化采掘作业场景；(2)运输机器人——井下物资自动运输场景；(3)巡检机器人——危险区域无人巡检场景；(4)救援机器人——应急救援场景。要求场景具有典型性、可复制性和推广价值，推动矿山领域"机械化换人、自动化减人、智能化无人"。',tags:['矿山机器人','应用场景','安全生产','典型场景'],url:'https://www.miit.gov.cn/xwdt/gxdt/sjdt/art/2023/art_ffcca4d644524780a34b369c0aa2c612.html'},
+{id:12,t:'policy',lv:'国家级',dm:'工业互联网',nm:'工业互联网综合示范区建设方案',dn:'工信部',yr:2022,docNo:'工信厅信管函〔2024〕336号',desc:'在全国布局工业互联网综合示范区（5G+工业互联网融合应用先导区），集聚产业资源，推动区域工业互联网协同发展，形成可复制推广的典型经验。',detail:'示范区功能定位：(1)网络基础设施先行区——5G+工业互联网网络部署示范；(2)平台应用创新区——跨行业跨领域平台应用孵化；(3)安全防护样板区——工业互联网安全监测与防护体系建设；(4)产业生态集聚区——解决方案供应商和开发者生态汇聚。通过示范区建设形成区域性的工业互联网发展高地。',tags:['综合示范区','区域发展','产业集聚','典型经验'],url:'https://www.miit.gov.cn/jgsj/xgj/gzdt/art/2024/art_7086a4c7fe8a4cca949c329705c40233.html'},
+{id:13,t:'policy',lv:'省级',dm:'工业AI',nm:'广东省人工智能赋能制造业高质量发展行动方案(2025-2027年)',dn:'广东省政府办公厅',yr:2025,docNo:'粤办函〔2025〕265号',desc:'推动AI深度赋能制造业高质量发展，对接国家AI+制造专项行动，结合广东电子信息、家电、汽车等优势产业部署重点任务。',detail:'核心内容：(1)推进AI大模型在工业设计、工艺优化、质量检测等环节的深度应用；(2)建设制造业AI创新平台和公共服务体系；(3)培育AI+制造业解决方案供应商和标杆企业；(4)围绕电子信息、智能家电、新能源汽车等广东优势产业集群打造AI应用示范。目标到2027年AI赋能制造业水平全国领先。',tags:['广东','AI+制造','省级方案','2025-2027'],url:'http://www.gd.gov.cn/zwgk/wjk/qbwj/ybh/content/post_4787001.html'},
+
+{id:15,t:'policy',lv:'省级',dm:'工业AI',nm:'湖南省贯彻落实国务院人工智能+行动的实施方案',dn:'湖南省政府',yr:2025,docNo:'湘政发〔2025〕7号',desc:'深入实施"智赋万企"行动，加快推进AI与制造业深度融合，支撑全省制造业数字化转型升级。',detail:'方案框架：(1)推进AI技术攻关和基础设施建设；(2)实施制造业AI赋能专项行动；(3)建设AI创新平台和公共服务体系；(4)培育AI应用标杆企业和解决方案供应商。配套"智赋万企"行动，2026年部署相关项目支持资金申报工作。',tags:['湖南','人工智能+','智赋万企','省级方案'],url:'http://hunan.gov.cn/hnszf/xxgk/wjk/szfwj/202510/t20251030_33837204.html'},
+{id:16,t:'policy',lv:'省级',dm:'工业AI',nm:'云南省人工智能+制造专项行动方案',dn:'云南省工信厅等十部门',yr:2026,docNo:'-',desc:'结合云南省资源禀赋和产业基础优势，部署AI赋能制造业高质量发展的重点任务和保障措施。',detail:'方案对接国家AI+制造专项行动实施意见，结合云南绿色铝硅、有色金属、新能源电池、生物医药等特色优势产业，推进AI在工艺优化、质量检测、能耗管理等方面的深度应用。提出建立AI制造公共服务平台、培育AI应用标杆企业等工作任务。',tags:['云南','AI+制造','省级方案','十部门'],url:'https://gxt.yn.gov.cn/zwgk/zc/zfwj2ynsgxw/content_32932'},
+{id:17,t:'policy',lv:'省级',dm:'智能制造',nm:'山东省智能工厂梯度培育认定管理办法',dn:'山东省工信厅等六部门',yr:2026,docNo:'-',desc:'构建四级梯度培育体系，规范全省智能工厂建设、认定与管理，2026年7月27日起实施。已认定先进级智能工厂575家。',detail:'管理办法明确四级梯度培育体系：基础级→先进级→卓越级→领航级，各级认定条件参照国家梯度培育要素条件。截至目前，山东已认定575家先进级智能工厂，青岛另认定102家。该办法是国内首个省级智能工厂梯度培育管理规范性文件，对全国具有示范效应。',tags:['山东','智能工厂','梯度培育','575家'],url:'http://gxt.shandong.gov.cn/art/2026/6/25/art_103862_10357751.html'},
+{id:18,t:'policy',lv:'省级',dm:'智能制造',nm:'广西智能制造标杆企业/智能工厂/数字化车间认定',dn:'广西工信厅',yr:2025,docNo:'桂工信两化〔2025〕117号',desc:'开展广西智能制造标杆企业、智能工厂示范企业(先进级)和数字化车间(基础级)认定工作。',detail:'广西按照国家四级梯度体系，结合本地实际开展三级认定：数字化车间(基础级)、智能工厂示范企业(先进级)、智能制造标杆企业(卓越级/领航级)。要求申报企业为规模以上工业企业，近三年经营和财务状况良好，无安全环保事故。重点面向有色金属、机械制造、食品加工等广西优势产业。',tags:['广西','智能工厂认定','标杆企业','三级认定'],url:'http://gxt.gxzf.gov.cn/wzsy/tzgg_6719901/tzgg/t19656099.shtml'},
+{id:19,t:'policy',lv:'省级',dm:'数字化转型',nm:'湖南省深化智赋万企行动加快制造业数字化转型实施方案',dn:'湖南省工信厅、财政厅',yr:2025,docNo:'湘工信人工智能〔2025〕325号',desc:'深化"智赋万企"行动，加快制造业数字化转型，聚焦中小企业数字化改造和智能化升级。',detail:'实施路径：(1)推进企业数字化改造——面向规模以上工业企业开展数字化转型诊断和改造；(2)培育数字化转型服务商——建设区域性和行业性服务平台；(3)推动AI深度赋能——在重点行业推进AI应用试点示范；(4)强化基础设施支撑——完善5G、工业互联网等数字基础设施。方案提供专项资金支持。',tags:['湖南','智赋万企','数字化转型','专项资金'],url:'http://hunan.gov.cn/zqt/zcsd/202509/t20250915_33803882.html'},
+{id:20,t:'policy',lv:'省级',dm:'工业AI',nm:'广东省加快推动人工智能赋能科学研究行动方案(2026-2030年)',dn:'广东省科技厅',yr:2026,docNo:'-',desc:'推动AI赋能科学研究创新，服务制造业技术研发和工艺优化，为工业AI提供科学计算和仿真验证支撑。',detail:'方案聚焦AI4S(AI for Science)在制造业领域的应用，推动大模型驱动的材料设计、工艺仿真、流程优化等科学研究范式变革。建设AI科研基础设施和算力平台，支撑制造业技术创新。',tags:['广东','AI4S','行动方案','2026-2030'],url:'http://gdstc.gd.gov.cn/zwgk_n/zdly/gljz/content/post_4908128.html'},
+{id:21,t:'policy',lv:'省级',dm:'工业互联网',nm:'浙江省加快发展工业互联网促进制造业高质量发展实施意见',dn:'浙江省人民政府',yr:2018,docNo:'-',desc:'推进工业互联网与制造业深度融合，打造"1+N"工业互联网平台体系，服务浙江数字经济和制造业高质量发展。',detail:'核心内容：(1)构建"1+N"平台体系——1个省级综合平台+N个行业级/区域级平台；(2)推进5G+工业互联网融合应用；(3)建设工业数据空间和数据流通机制；(4)完善工业互联网安全防护体系。浙江依托数字经济先发优势，在supET等平台建设方面走在全国前列。',tags:['浙江','工业互联网','1+N平台','数字经济'],url:'https://www.zj.gov.cn/art/2018/8/21/art_1229019364_55335.html'},
+{id:22,t:'policy',lv:'省级',dm:'智能制造',nm:'安徽省以新型技术改造推动制造业高端化智能化绿色化发展行动方案',dn:'安徽省人民政府办公厅',yr:2025,docNo:'-',desc:'围绕汽车、家电、装备制造等安徽优势产业，推进智能制造示范工厂建设和数字化转型，培育智能制造生态系统。',detail:'行动重点：(1)推进汽车及零部件智能工厂建设——支撑安徽打造新能源汽车之都；(2)家电行业智能制造升级——推动产品个性化定制和柔性生产；(3)装备制造业数字化转型——发展远程运维和预测性维护；(4)建设智能制造公共服务平台——提供诊断评估、解决方案对接等服务。目标到2026年培育100家省级智能工厂。',tags:['安徽','智能制造','行动计划','新能源汽车'],url:'https://www.ah.gov.cn/public/1681/565451001.html'},
+{id:23,t:'policy',lv:'市级',dm:'工业AI',nm:'北京市人工智能赋能工业互联网高质量发展实施方案(2026-2028年)',dn:'北京市经信局',yr:2026,docNo:'-',desc:'贯彻国家工业互联网高质量发展部署，推动AI赋能工业互联网，建设北京特色AI+工业互联网创新生态。',detail:'方案聚焦北京高端制造和科技创新优势，重点推进：(1)AI+工业互联网平台能力提升；(2)工业大模型训练与应用；(3)智能检测与预测性维护；(4)工业数据要素流通与安全。发挥北京AI产业和人才集聚优势，打造AI赋能工业互联网的技术创新策源地。',tags:['北京','AI+工业互联网','市级方案','2026-2028'],url:'https://jxj.beijing.gov.cn/zwgk/2024zcwj/202605/t20260512_4648108.html'},
+{id:24,t:'policy',lv:'市级',dm:'工业AI',nm:'珠海市人工智能赋能制造业高质量发展行动方案(2026-2028年)',dn:'珠海市工信局',yr:2026,docNo:'-',desc:'实施人工智能+制造专项行动，推动AI创新与制造业应用双向赋能，结合珠海家电电气、集成电路、生物医药产业集群。',detail:'方案结合珠海产业集群，推动AI在产品质检、工艺优化、供应链协同等方面的深度应用。明确培育AI+制造示范工厂、建设区域AI赋能平台等量化目标。对接广东省AI赋能制造业行动方案。',tags:['珠海','AI+制造','市级方案','双向赋能'],url:'https://www.zhuhai.gov.cn/sjb/zw/zcwj/content/post_3921035.html'},
+{id:25,t:'policy',lv:'市级',dm:'智能制造',nm:'深圳市制造业数字化转型通用评估工作',dn:'深圳市工信局',yr:2026,docNo:'-',desc:'按照工信部通用评估体系，组织规上工业企业开展数字化转型评估，摸清转型底数，支撑精准施策。',detail:'评估工作：(1)采用工信部《制造业数字化转型通用评估指标体系》开展企业自评；(2)评估结果划分为L1-L5五个梯度；(3)支持企业通过"制造业数字化转型综合信息服务平台"在线评估；(4)对已有评估数据支持直接换算。深圳作为制造业数字化转型先行城市，率先全面部署评估工作。',tags:['深圳','数字化转型','通用评估','L1-L5'],url:'http://gxj.sz.gov.cn/xxgk/xxgkml/qt/tzgg/content/post_12240190.html'},
+{id:26,t:'policy',lv:'市级',dm:'工业AI',nm:'上海市智能制造与工业AI融合行动方案',dn:'上海市经信委',yr:2024,docNo:'-',desc:'推动AI与智能制造深度融合，建设国际领先的智能制造高地，支撑上海先进制造业发展。',detail:'核心举措：(1)推进AI在研发设计环节的应用——大模型辅助产品设计和工艺规划；(2)打造AI驱动的智能工厂标杆——在汽车、装备、电子信息等行业建设示范工厂；(3)建设工业AI算法和模型平台——提供公共服务和资源共享；(4)培育工业AI应用生态——引育解决方案供应商和开发者社区。上海目标到2026年建设50家以上AI+智能工厂。',tags:['上海','工业AI','市级方案','智能工厂'],url:'https://sheitc.sh.gov.cn/cyfz/20250819/809aa8a70f8643b383a2e8d4714762f6.html'},
+{id:27,t:'standard',lv:'国家标准',dm:'智能制造',nm:'智能制造能力成熟度模型',stdCode:'GB/T 39116-2020',yr:2020,dn:'国家标准委',desc:'CMMM核心标准，将企业智能制造能力划分为5个等级(规划级→规范级→集成级→优化级→引领级)，覆盖设计、生产、物流、销售、服务、管理6大能力要素。',detail:'等级划分：一级规划级(应开始)——企业应开始对核心业务活动进行规划；二级规范级(应规范)——企业应规范开展智能制造核心业务活动；三级集成级(应集成)——企业应对核心业务活动进行跨业务集成；四级优化级(应优化)——企业应对核心业务活动进行数据驱动下的动态优化；五级引领级(应引领)——企业应实现核心业务活动全链条智能化。六大能力要素：设计、生产、物流、销售、服务、管理。',tags:['CMMM','成熟度','五级模型','核心标准'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=809991917D73FE52B65C1ECC8B51B418'},
+{id:28,t:'standard',lv:'国家标准',dm:'智能制造',nm:'智能制造能力成熟度评估方法',stdCode:'GB/T 39117-2020',yr:2020,dn:'国家标准委',desc:'CMMM配套评估方法标准，规定了评估流程、评估准则和结果判定方法，是企业进行成熟度自评与第三方评估的操作指南。',detail:'评估流程：准备阶段→评估策划→正式评估→结果判定→报告编制。评估方法采用文件审查+现场访谈+系统演示相结合的方式，评估组由2名以上持证评估师组成。成熟度等级按符合度打分确定，各级需满足对应能力要求的符合度阈值。目前国内四级认证企业数量较少，代表国内领先水平。',tags:['CMMM','评估方法','配套标准'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=A5FA7CB1C806E037B64F8A0019C57351'},
+{id:29,t:'standard',lv:'国家标准',dm:'智能制造',nm:'智能工厂评价通则',stdCode:'GB/T 46734-2025',yr:2025,dn:'工信部归口',desc:'国内首个智能工厂综合性评价标准，构建定性+定量综合评价模型，包含智能设计、智能生产、智能管理、智能服务、智能保障5个评价域。2026年4月1日起实施。',detail:'评价体系创新点：(1)建立定性+定量综合评价模型，兼顾描述性评价和量化评分；(2)5个评价域：智能设计(研发数字化)、智能生产(制造过程智能化)、智能管理(经营决策智能化)、智能服务(服务模式创新)、智能保障(安全与绿色)；(3)每个域下设若干评价子域和评价条目；(4)评价结果以综合得分+等级方式呈现。该标准为各类智能工厂评价提供统一标尺。',tags:['智能工厂','评价通则','首个综合标准','五域模型'],url:'https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=DE61E890C20EE41B520CD82639D72AF4'},
+{id:30,t:'standard',lv:'国家标准',dm:'智能制造',nm:'智能制造水平评价指标体系及指数计算方法',stdCode:'GB/T 42757-2023',yr:2023,dn:'国家标准委',desc:'建立覆盖智能制造全流程的量化评价框架，围绕供给能力、支撑能力、应用能力三个维度，构建区域和行业智能制造指数。',detail:'指标体系框架：(1)供给能力——反映智能制造技术、产品、服务的供给水平；(2)支撑能力——反映基础设施、人才、标准、政策等支撑条件；(3)应用能力——反映企业智能制造应用广度和深度。指数计算采用加权综合法，可支撑区域横向比较和行业纵向追踪。由50余家单位联合起草。',tags:['评价指标','指数计算','三维度','量化评价'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=7578514A3793BE054D9F42890F69597A'},
+{id:31,t:'standard',lv:'国家标准',dm:'工业互联网',nm:'工业互联网平台企业应用水平与绩效评价',stdCode:'GB/T 41870-2022',yr:2022,dn:'国家标准委',desc:'规定企业工业互联网平台应用水平与绩效评价框架和内容，涵盖平台应用水平、业务绩效和平台价值三个评价维度。',detail:'评价框架：(1)平台应用水平——评价企业对工业互联网平台的使用程度和覆盖范围；(2)业务绩效——评价平台应用对生产效率、产品质量、运营成本等业务指标的改善程度；(3)平台价值——评价平台带来的创新价值和生态价值。标准规定了评价导向与原则、评价体系与内容、评价过程与服务要求，由全国两化融合管理标委会归口管理。',tags:['工业互联网','平台评价','绩效评价','三维度'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=943C37043EBB61D5433669E66A3B4D58'},
+{id:32,t:'standard',lv:'国家标准',dm:'智能制造',nm:'智能制造系统架构',stdCode:'GB/T 40647-2021',yr:2021,dn:'国家标准委',desc:'规定智能制造系统架构的生命周期、系统层级和智能特征三个维度，是智能制造领域基础架构标准，2026年启动修订。',detail:'三维架构：(1)生命周期维度——设计、生产、物流、销售、服务；(2)系统层级维度——设备层、控制层、车间层、企业层、协同层；(3)智能特征维度——资源要素、系统集成、互联互通、信息融合、新兴业态。该标准是智能制造标准体系的基础框架标准，所有其他标准均在此基础上衍生。2026年已启动修订(计划号20262673-T-604)。',tags:['系统架构','三维架构','基础标准','修订中'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=D7670A73F3BF8E821A230230B04AB753'},
+{id:33,t:'standard',lv:'国家标准',dm:'智能制造',nm:'数字化车间术语和定义',stdCode:'GB/T 37413-2019',yr:2019,dn:'国家标准委',desc:'界定数字化车间的基础概念、技术要素与功能要求，为制造业数字化转型提供统一术语规范。',detail:'核心内容：围绕生产设备、信息系统、数据交互等维度，明确智能装备集成、实时数据采集、生产过程管控等核心概念定义。适用于离散型与流程型制造企业的车间规划、建设及评估工作。是智能制造基础类标准，为后续评价标准提供术语支撑。',tags:['数字化车间','术语定义','基础标准'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=7A0B4FE4E1024DCFCB1C55C23EB93FEB'},
+{id:34,t:'standard',lv:'国家标准',dm:'智能制造',nm:'机器人制造数字化车间装备互联互通和互操作规范',stdCode:'GB/T 41256-2022',yr:2022,dn:'国家标准委',desc:'规定机器人制造数字化车间的系统组成、网络架构、交互数据统一描述，涵盖设备层、控制层、执行层和管理层四个层面。',detail:'标准内容：(1)系统组成——定义数字化车间的四层架构；(2)网络架构——规范设备间的通信协议和接口；(3)交互数据——统一描述设备状态、工艺参数、生产指令等交互数据格式；(4)互联互通——规范不同厂商设备间的互操作要求。该标准解决数字化车间建设中设备"语言不通"的核心问题。',tags:['数字化车间','互联互通','机器人','四层架构'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=590EB072DD10F121B7E6EBFED2362B0E'},
+{id:35,t:'standard',lv:'国家标准',dm:'工业安全',nm:'工业控制系统信息安全评估规范',stdCode:'GB/T 30976.1-2014',yr:2014,dn:'国家标准委',desc:'规定工业控制系统信息安全评估的评估范围、评估指标、评估流程和评估方法，是工控安全评估的基础标准。',detail:'评估内容：(1)评估范围——涵盖PLC、DCS、SCADA等工控系统；(2)评估指标——从保密性、完整性、可用性三个维度设置评估指标；(3)评估流程——准备、实施、报告、整改闭环管理；(4)评估方法——文档审查、技术测试、现场检查相结合。该标准是智能制造安全保障的重要基础。',tags:['工控安全','安全评估','评估规范','CIA三性'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=2FF0ACA2FCB1E80DB3A533F9EBD78B5F'},
+{id:36,t:'standard',lv:'国家标准',dm:'工业安全',nm:'智能工厂安全一体化功能安全与信息安全评估',stdCode:'GB/T 46735-2025',yr:2025,dn:'国家标准委',desc:'2026年7月1日起实施。规定智能工厂安全一体化评估要求，统筹功能安全与信息安全，支撑智能工厂安全可信运行。',detail:'标准创新点：(1)首次将功能安全和信息安全纳入统一评估框架；(2)覆盖智能工厂全生命周期安全需求；(3)建立安全一体化评估指标体系和方法；(4)提出安全防护等级划分和对应防护措施。该标准是智能工厂"安全可控"要求的重要技术支撑。',tags:['智能工厂','安全一体化','功能安全','信息安全'],url:'https://www.samr.gov.cn/xw/zj/art/2026/art_998a0c07eb9a4b0b80befacdbab7c384.html'},
+{id:37,t:'standard',lv:'国家标准',dm:'数字化转型',nm:'数字化转型管理参考架构',stdCode:'GB/T ——',yr:2025,dn:'工信部归口',desc:'为企业数字化转型提供顶层设计、评估诊断及解决方案研发的通用框架，以数据要素为核心驱动，整合成熟度等级划分与企业架构模型。2025年6月1日实施。',detail:'参考架构：(1)主要视角——覆盖发展战略、业务转型、技术赋能、数据驱动、组织保障等；(2)过程方法——规划、实施、评估、优化的PDCA闭环；(3)分阶段实施——从局部试点到全面推行的渐进路径。以数据要素为核心驱动，整合成熟度等级划分与企业架构模型，助力企业实现全面数字化转型。',tags:['数字化转型','参考架构','数据驱动','成熟度'],url:'https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=24369200310D91C4C7EF84897C9CBC75'},
+{id:38,t:'standard',lv:'国家标准',dm:'工业互联网',nm:'工业互联网平台监测评价指标体系(2025版)',stdCode:'-',yr:2025,dn:'工信部',desc:'从基础能力、应用效能、技术创新、产业生态等维度评价工业互联网平台，包含数据采集汇聚、分析建模、应用开发等子项，用于双跨平台遴选。',detail:'评价维度：(1)基础能力——数据采集汇聚(设备连接数、有效采集点数、算力资源规模、数据总量)、分析建模(工业模型数量/类型)、应用开发(工业APP数量/类型)；(2)应用效能——服务工业企业数量、付费用户比例、活跃开发者数；(3)技术创新——核心技术突破和标准参与；(4)产业生态——开发者社区和合作伙伴网络。数据来源以平台端口自动采集为主。',tags:['工业互联网','平台评价','2025版','监测指标'],url:'https://www.renrendoc.com/paper/522779881.html'},
+{id:39,t:'indicator',lv:'行业标准',dm:'数字化转型',nm:'制造业数字化转型通用评估指标体系',stdCode:'工信部试行',yr:2025,dn:'工信部',desc:'包含能力水平评估和转型成效评估两方面，由3个一级指标、17个二级指标组成，评估结果划分为L1-L5五个梯度。',detail:'指标框架：(1)能力水平评估——包含应用能力(研发设计数字化11.5%、生产制造数字化、经营管理数字化、产品服务数字化)和支撑能力(装备系统、软件系统、网络设施、数据资源、组织保障)两个一级指标；(2)转型成效评估——效益提升(经济效益、社会效益)一个一级指标。评估结果：L1初始级(0-9分)、L2基础级(10-39分)、L3集成级(40-59分)、L4成熟级(60-79分)、L5领航级(80-100分)。',tags:['数字化转型','通用评估','17指标','L1-L5'],url:'https://www.doumen.gov.cn/attachment/0/433/433585/3903822.pdf'},
+{id:40,t:'indicator',lv:'行业标准',dm:'工业互联网',nm:'工业数字化转型评价体系',stdCode:'-',yr:2022,dn:'工信部赛迪研究院/中国工经联',desc:'基于工业互联网平台采集数据，形成"1个综合指数+10大重点行业转型指数+6大新模式特色指数"的展示体系。',detail:'指标框架：(1)3个一级指标：技术维度、业务维度、管理维度；(2)15个二级指标覆盖技术应用、业务协同、管理创新等方面；(3)产出体系：1个工业数字化转型评价综合指数+10大重点行业转型指数(涵盖装备制造、电子信息、原材料等)+6大新模式特色指数(个性化定制、网络化协同、服务化延伸等)。侧重宏观层面的行业对标与趋势研判。',tags:['工业转型','综合指数','10行业指数','6模式指数'],url:'https://baike.baidu.com/item/%E5%B7%A5%E4%B8%9A%E6%95%B0%E5%AD%97%E5%8C%96%E8%BD%AC%E5%9E%8B%E8%AF%84%E4%BB%B7%E4%BD%93%E7%B3%BB/61784652'},
+{id:41,t:'indicator',lv:'行业标准',dm:'工业AI',nm:'可信AI人工智能数据集质量评估体系2.0',stdCode:'-',yr:2025,dn:'中国信通院',desc:'信通院发布的AI数据集质量评估标准体系，核心为"2+2+1+N"的数据集质量评估能力体系，支撑工业AI数据质量。',detail:'"2+2+1+N"体系：(1)2个基础维度——数据质量描述、数据质量评估；(2)2个核心能力——合规性评估、实用性评估；(3)1个支撑平台——数据集质量评测云平台；(4)N个行业应用——面向工业、医疗、金融等垂直领域的数据集专项评估。为工业AI应用提供高质量数据集的评估基准。',tags:['可信AI','数据集评估','信通院','2+2+1+N'],url:'https://www.cnii.com.cn/gxxww/rmydb/202512/t20251209_701716.html'},
+{id:42,t:'indicator',lv:'行业标准',dm:'工业互联网',nm:'工业互联网平台评价方法',stdCode:'-',yr:2019,dn:'工信部',desc:'规范和促进工业互联网平台发展，支撑平台评价与遴选，涵盖基础共性、特定行业、特定领域、特定区域、跨行业跨领域五类能力要求。',detail:'五类能力要求：(1)基础共性能力——平台资源管理、应用服务、基础技术、投入产出效益；(2)特定行业能力——面向特定制造业行业的专业能力；(3)特定领域能力——面向特定技术/管理领域的能力；(4)特定区域能力——面向特定区域产业集群的服务能力；(5)跨行业跨领域能力——同时满足多行业多领域需求的综合型平台。评价指标包括设备连接量、工业模型数、工业APP数等。',tags:['工业互联网','平台评价方法','五类能力','双跨平台'],url:'https://www.gov.cn/zhengce/zhengceku/2018-12-31/content_5440221.htm'},
+{id:43,t:'indicator',lv:'行业标准',dm:'数字化转型',nm:'两化融合管理体系要求',stdCode:'GB/T 23001-2017',yr:2017,dn:'国家标准委',desc:'规定信息化和工业化融合管理体系的要求，为企业数字化转型提供系统化管理框架，是两化融合评估的基础标准。',detail:'管理体系核心：(1)战略引领——以打造信息化环境下的新型能力为目标；(2)数据驱动——发挥数据要素的创新引擎作用；(3)技术融合——信息技术与工业技术深度融合；(4)流程优化——业务流程再造和组织变革；(5)协同发展——业务流程、组织结构、信息技术的协同优化。该标准已在全国数万家企业贯标实施。',tags:['两化融合','管理体系','GB/T 23001','贯标'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=65817A12CA3D43CB24FFBBFE82A82FBA'},
+{id:44,t:'indicator',lv:'团体标准',dm:'数字化转型',nm:'制造业企业数字化转型成熟度评估规范',stdCode:'福建省团体标准',yr:2025,dn:'福建省标协',desc:'福建省团体标准，规定成熟度评估模型与指标体系、评估方法与流程、成熟度等级和评估报告要求。',detail:'模型框架遵循"组织、技术、数据以及资源是基础，生产是核心，经营是手段，成效是目的"原则，包含四个维度：数字化基础(组织/技术/数据/资源)、数字化生产(核心)、数字化经营(手段)、数字化成效(目的)。标准适用于福建省制造业企业自评估和第三方评估。',tags:['数字化转型','成熟度','团体标准','福建'],url:'https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=E53380EC54007AB717483765BB32A93E'},
+{id:45,t:'indicator',lv:'行业标准',dm:'智能制造',nm:'轻工业智能家居个性化定制能力分级评价',stdCode:'-',yr:2026,dn:'工信部',desc:'对标智能工厂四级梯度培育体系，将企业定制能力由低至高划分为基础级、先进级、卓越级、领航级四个成熟度等级，明确各层级硬性判定条件。',detail:'四级判定条件：领航级(90-100分)——支持全维度深度定制，AI驱动无人工厂，混线生产，工艺参数实时可调；卓越级(70-89分)——支持多维度定制，数字孪生+物联网深度集成；先进级(40-69分)——支持配置级定制，自动化产线+有限柔性；基础级(0-39分)——支持简单选择定制，人工+半自动产线。',tags:['个性化定制','分级评价','轻工业','四级模型'],url:'https://www.cnii.com.cn/gy/202607/t20260707_747577.html'},
+{id:46,t:'indicator',lv:'行业标准',dm:'工业AI',nm:'人工智能大模型评测规范',stdCode:'-',yr:2025,dn:'中国信通院',desc:'面向大语言模型和多模态模型的测评规范，涵盖模型能力、安全性、可靠性等维度，支撑工业AI大模型的选型和评价。',detail:'评测维度：(1)基础能力——语言理解、生成、推理、代码等；(2)专业能力——行业知识、领域技能等；(3)安全与合规——内容安全、偏见与公平性、隐私保护；(4)可靠性——鲁棒性、一致性、可解释性；(5)效率——推理速度、资源消耗。对工业领域，重点关注模型在工艺参数优化、质量预测、设备故障诊断等垂直场景的能力评估。',tags:['大模型','评测规范','信通院','安全合规'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=96F5EFDEB471C204455462EAF0C235E6'},
+
+{id:48,t:'framework',lv:'国家级',dm:'智能制造',nm:'CMMM成熟度五级模型',stdCode:'GB/T 39116-2020',yr:2020,dn:'中国电子技术标准化研究院',desc:'工信部指导、电子标准院牵头的权威认证体系，将智能制造能力成熟度划分为规划级→规范级→集成级→优化级→引领级五个等级。',detail:'五级模型详解：一级规划级——企业应开始对核心业务活动进行规划，制定智能制造发展战略；二级规范级——企业应规范开展核心业务活动，实现关键过程信息化和自动化；三级集成级——企业应对核心业务活动进行跨业务集成，实现数据互通和流程贯通；四级优化级——企业应对核心业务活动进行数据驱动的动态优化，实现预测性维护和自适应调整；五级引领级——企业应实现核心业务活动全链条智能化，达到自主决策和持续创新。每级需通过符合性评估认证。',tags:['CMMM','五级模型','成熟度认证','权威体系'],url:'https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=809991917D73FE52B65C1ECC8B51B418'},
+{id:49,t:'framework',lv:'国家级',dm:'数字化转型',nm:'制造业数字化转型五级评估框架',stdCode:'工信部试行',yr:2025,dn:'工信部',desc:'工信部制定的通用评估框架，评估结果划分为L1初始级(0-9分)至L5领航级(80-100分)五个梯度，含3个一级指标、17个二级指标。',detail:'评估框架：能力水平评估(应用能力+支撑能力) + 转型成效评估(效益提升)。应用能力涵盖研发设计、生产制造、经营管理、产品服务4个维度数字化水平；支撑能力涵盖装备系统、软件系统、网络设施、数据资源、组织保障5个方面；效益提升涵盖经济效益和社会效益。评分方式：各二级指标打分后加权汇总，按总分对应L1-L5等级。支持已有评估数据直接换算。',tags:['数字化转型','五级评估','17指标','打分制'],url:'https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12841091.html'},
+
+{id:51,t:'framework',lv:'国家级',dm:'标准体系',nm:'数字中国发展指标体系',stdCode:'-',yr:2025,dn:'国家数据局',desc:'采用5+5双层架构，包含数字经济等5大应用领域和数字技术等5大基础支撑，共10个一级指标，其中数字经济指标直接关联工业数字化。2025年指数170.1。',detail:'"5+5"架构：5大应用领域(数字经济、数字政务、数字文化、数字社会、数字生态文明)+5大基础支撑(数字技术、数据要素、数字基础设施、国际合作、数字安全)。数字经济维度下设置工业数字化相关二级指标，直接反映工业智能制造和AI应用的宏观发展水平。2025年数字中国发展指数为170.1，同比增长12.99%。',tags:['数字中国','5+5架构','发展指数','宏观评估'],url:'https://www.szzg.gov.cn/2025/xwzx/qwfb/202505/t20250501_5013797.htm'},
+{id:52,t:'framework',lv:'国家级',dm:'智能制造',nm:'智能制造标准体系三维架构',stdCode:'GB/T 40647-2021',yr:2021,dn:'中国电子技术标准化研究院',desc:'基于生命周期、系统层级、智能特征三个维度构建的标准分类架构，是所有智能制造标准的顶层框架。',detail:'三维架构：(1)生命周期维——设计、生产、物流、销售、服务全链条；(2)系统层级维——设备层、控制层、车间层、企业层、协同层五层级；(3)智能特征维——资源要素、系统集成、互联互通、信息融合、新兴业态五特征。三个维度交叉形成标准矩阵，每个交集点对应一类标准需求。该架构为标准体系建设指南提供理论框架，对标准规划和研制具有指导意义。',tags:['标准架构','三维模型','框架标准','顶层设计'],url:'https://www.miit.gov.cn/jgsj/kjs/wjfb/art/2025/art_44dfda8e2220425daaa08501ec917f8f.html'},
+{id:53,t:'policy',lv:'省级',dm:'工业AI',nm:'四川省人工智能赋能新型工业化三年行动方案(2025-2027年)',dn:'四川省政府办公厅',yr:2025,docNo:'川办发〔2025〕52号',desc:'西部首个省级层面明确推动人工智能在新型工业化领域应用的方案，加快推进AI赋能15+N重点产业链建圈强链，推动制造业智能化绿色化融合化发展。',detail:'五大重点任务：(1)强化智能化技术科技创新——突破工业AI基础理论和关键技术；(2)促进智能产品研发升级——推动AI工业软件和智能装备创新；(3)深化重点行业融合应用——赋能电子信息、装备制造、食品轻纺、先进材料、能源化工等15+N产业链；(4)夯实智能化基础设施——建设算力、数据、网络支撑体系；(5)优化产业发展生态——培育解决方案供应商和公共服务平台。2024年全省AI产业营收超1300亿元，同比增长25%。',tags:['四川','AI+新型工业化','三年行动','15+N产业链'],url:'https://www.sc.gov.cn/scszfgb/1402/2642/2643/202602/MIT114263.shtml'},
+{id:54,t:'policy',lv:'省级',dm:'工业AI',nm:'四川省加快推进人工智能+一号创新工程实施方案',dn:'四川省政府办公厅',yr:2026,docNo:'川办发〔2026〕14号',desc:'将人工智能列为1号创新工程，采用超常规最大力度精准支持，到2027年新一代智能终端、智能体等应用普及率超70%，形成2-3个全国竞争力细分赛道产业集群。',detail:'核心目标：到2027年，(1)AI与重点领域广泛深度融合；(2)新一代智能终端、智能体应用普及率超70%；(3)形成2-3个具有全国竞争力的细分赛道产业集群；(4)重点打造10个以上AI+行业应用标杆。方案涵盖科学技术、产业发展、消费提质、民生福祉、治理能力、全球合作六大行动框架，标志着四川AI发展从技术驱动转向技术与市场双轮驱动。',tags:['四川','一号创新工程','人工智能+','超常规支持'],url:'https://www.sc.gov.cn/10462/zfwjts/2026/5/6/817c7e23c2ec4cdca02336693af269be.shtml'},
+{id:55,t:'policy',lv:'省级',dm:'智能制造',nm:'四川省加快制造业智能化改造数字化转型行动计划(2024-2027年)',dn:'四川省政府办公厅',yr:2024,docNo:'川办发〔2024〕43号',desc:'推进全省制造业智改数转，完善评价指标体系，2024年省级财政安排20亿元支持企业智改数转网联、产业链和集群数字化转型及公共服务能力建设。',detail:'核心举措：(1)完善智改数转评价指标体系——细化到化工园区及白酒等行业；(2)加大财政支持——2024年省级财政安排20亿元支持智改数转；(3)推进重点项目——对获批项目给予不超过设备(含软件)投资额20%、最高2000万元奖补；(4)建设公共服务平台——提供诊断评估、解决方案对接等服务。行动计划是四川省推动制造业转型升级的核心政策。',tags:['四川','智改数转','20亿财政','2024-2027'],url:'https://jxt.sc.gov.cn/scjxt/qtwj/2024/10/25/e44954cc1bd74d2c8272e4a8a42a0e24.shtml'},
+{id:56,t:'policy',lv:'省级',dm:'工业AI',nm:'四川省进一步促进人工智能产业链发展若干政策',dn:'四川省科技厅等四部门',yr:2026,docNo:'-',desc:'大力推进AI产业建圈强链，聚焦智能制造、科学智能等重点领域打造重大标志性应用场景，给予最高2000万元支持。',detail:'政策要点：(1)场景牵引以用促产——聚焦智能制造、科学智能、智能医疗、智能政务、智能农业、智能应急等领域的重大标志性应用场景建设，择优给予最高2000万元支持；(2)核心技术攻关——支持AI基础理论、大模型、具身智能等关键技术突破；(3)产业生态培育——建设AI产业园区和创新平台；(4)人才引进培养——支持高层次AI人才团队来川发展。2026年6月11日由科技厅、发改委、经信厅、财政厅联合印发。',tags:['四川','AI产业链','2000万场景','四部门'],url:'https://kjt.sc.gov.cn/kjt/gstz/2026/6/25/cda3dc2622024f9190f15d2f03ae494e.shtml'},
+{id:57,t:'policy',lv:'市级',dm:'工业AI',nm:'成都市打造人工智能产业发展新高地若干政策(含实施细则)',dn:'成都市政府办公厅/市经信局、财政局',yr:2025,docNo:'成办规〔2025〕6号',desc:'成都AI产业核心政策及配套实施细则，围绕AI产业发展、场景应用、要素保障推出系列支持举措，细则明确申报条件和补贴标准。',detail:'政策内容：(1)支持AI核心技术攻关——对AI基础理论、大模型、智能算力等方向给予科研经费支持；(2)促进AI场景应用——在智能制造、智慧城市、智能网联汽车等领域打造应用示范；(3)强化算力支撑——建设智算中心，提供算力补贴；(4)培育产业生态——支持AI产业园建设和企业引育；(5)人才保障——引进培育AI高层次人才。配套实施细则要点：明确算力补贴标准(对使用智算中心算力给予实际费用一定比例补贴)；AI应用示范项目支持(对认定项目给予资金支持)；企业培育支持(AI专精特新企业奖励)；平台建设支持(AI公共服务平台建设运营补贴)。2025年8月政策印发，10月细则印发，各区(市)县均可申报。',tags:['成都','AI产业','新高地','成办规','实施细则'],url:'https://www.chengdu.gov.cn/cdsrmzf/c178973/2025-09/10/content_8a30848aa1334c15811f92e5a9ed7ab6.shtml'},
+
+{id:59,t:'policy',lv:'市级',dm:'工业AI',nm:'成都市进一步促进人工智能产业高质量发展的若干政策措施',dn:'成都市经信局等7部门',yr:2024,docNo:'成经信发〔2024〕1号',desc:'7部门联合印发，从技术创新、场景牵引、要素保障等维度全面推进成都AI产业高质量发展，2025年已启动项目申报。',detail:'措施框架：(1)技术创新——支持AI大模型、具身智能等前沿技术攻关；(2)场景牵引——在智能制造、智慧交通、医疗健康等领域开放应用场景；(3)算力支撑——建设成都智算中心，发放算力券；(4)数据供给——建设AI训练数据集和语料库；(5)人才保障——引进AI高端人才团队。2025年度项目申报已启动，涵盖算力补贴、应用示范等多个方向。',tags:['成都','AI高质量','7部门','成经信发'],url:'https://cdjx.chengdu.gov.cn/gkml/xzgfxwj/1198938695978188800.shtml'},
+{id:60,t:'policy',lv:'市级',dm:'工业AI',nm:'成都市支持制造业高质量发展若干政策措施',dn:'成都市政府',yr:2023,docNo:'成府规〔2023〕2号',desc:'成都制造业综合支持政策，涵盖智能制造、数字化转型、工业互联网等方面，为制造业智能化改造提供全方位政策支撑。',detail:'政策内容：(1)支持制造业智能化改造——对企业数字化车间、智能工厂建设给予奖补；(2)推进工业互联网应用——支持工业互联网平台建设和企业上云；(3)促进数字化转型——对智改数转项目给予设备和软件投资额比例奖补；(4)培育先进制造业集群——支持重点产业链建设。该政策是成都制造业领域的基础性政策文件，为工业无人机等细分产业专项政策提供上位支撑。',tags:['成都','制造业高质量','综合政策','成府规'],url:'https://cdjx.chengdu.gov.cn/cdsjxw/c132797/2024-09/09/content_8761fdf936ad46318c4f6a2c4005c923.shtml'},
+{id:61,t:'policy',lv:'市级',dm:'工业互联网',nm:'数字绵阳发展三年行动方案(2025-2027年)',dn:'绵阳市政府办公室',yr:2025,docNo:'绵府办发〔2025〕17号',desc:'发挥中国科技城优势，系统推进数字绵阳建设，涵盖数字基础设施、产业数字化、数字产业化等方向，服务省域经济副中心建设。',detail:'行动方案重点：(1)数字基础设施——建设5G、算力、数据等新型基础设施；(2)产业数字化——推进制造业智能化改造和数字化转型，服务电子信息、装备制造等绵阳优势产业；(3)数字产业化——发展大数据、人工智能、工业互联网等数字经济核心产业；(4)数字治理——提升城市数字化治理能力。绵阳依托中国科技城优势，在AI+先进制造方面走在全省前列。',tags:['绵阳','数字绵阳','三年行动','科技城'],url:'https://www.my.gov.cn/mysrmzf/c102227/202511/89b19ab202f648d68198aaa4f855a9dc.shtml'},
+{id:62,t:'policy',lv:'市级',dm:'工业AI',nm:'德阳市推动人工智能产业发展工作方案',dn:'德阳市政府',yr:2025,docNo:'-',desc:'聚焦集成电路、机器人、算力、数据等细分赛道，全面推动德阳AI产业发展，配套制定产业链协同推进工作方案(2025-2027年)。',detail:'三大方向：(1)完善产业支撑体系——制定《德阳市人工智能产业链协同推进工作方案》(2025-2027年)，锚定数据资源供给、核心技术突破、场景应用牵引等重点任务；(2)夯实发展基础——推进算力基础设施、数据资源体系建设；(3)培育创新主体——引育AI领域高新技术企业，建设创新平台。德阳依托装备制造优势，重点推动AI+装备制造深度融合。',tags:['德阳','AI产业','工作方案','装备制造'],url:'https://www.scdsjzx.cn/scdsjzx/shizhoudongtai/2025/10/10/1488e1fe0afb45e09f276ea68620e3f4.shtml'},
+{id:63,t:'policy',lv:'市级',dm:'工业AI',nm:'南充市支持人工智能OPC创新发展行动计划(2026-2027年)',dn:'南充市政府办公室',yr:2025,docNo:'-',desc:'推动人工智能OPC(Optical+Photonic+Computing)创新发展，构建AI产业新赛道，是南充布局前沿技术的专项政策。',detail:'行动计划要点：(1)发展OPC核心技术——推动光子计算、光电子集成等前沿技术研发；(2)建设OPC产业基地——打造生产基地和创新平台；(3)推进AI+应用场景——在智能制造、智慧城市等领域落地应用；(4)强化要素保障——提供资金、人才、土地等支持。该政策体现南充在AI前沿技术赛道的差异化布局。2025年6月29日经市委市政府同意印发。',tags:['南充','AI-OPC','行动计划','创新赛道'],url:'https://www.nanchong.gov.cn/zwgk/zc/zfbwj/nfbg/202606/t20260630_2343722.html'},
+{id:64,t:'policy',lv:'市级',dm:'智能制造',nm:'眉山市制造业智能化改造数字化转型专项支持政策',dn:'眉山市政府',yr:2024,docNo:'眉府发〔2024〕8号',desc:'配套四川省智改数转行动，推出市级专项支持政策，对制造业企业智改数转项目给予资金奖补，2025年度已启动项目征集。',detail:'支持方向：(1)智能化改造——对企业数字化车间、智能工厂建设给予设备投资额比例奖补；(2)数字化转型——对企业上云用数、工业互联网应用给予支持；(3)示范引领——对获评省级及以上智能工厂、数字化车间的企业给予额外奖励；(4)服务支撑——建设智改数转公共服务平台。眉山重点推动1+3主导产业(新能源新材料、电子信息、装备制造、食品加工)智改数转。',tags:['眉山','智改数转','专项政策','1+3产业'],url:'https://www.ms.gov.cn/info/7552/1175635.htm'},
+{id:65,t:'policy',lv:'市级',dm:'智能制造',nm:'泸州市支持六大工业产业提质倍增深入推进新型工业化若干政策措施',dn:'泸州市人民政府',yr:2026,docNo:'-',desc:'围绕六大工业产业提质倍增，支持企业开展数字化智能化技术改造，从试点示范、转型促进中心建设、市级示范工厂、中小微企业标杆等多维度给予奖补。',detail:'核心奖补标准：(1)对新获批的国家级、省级试点示范企业(项目)分别给予100万元、50万元奖补；(2)对新创建的国家级、省级数字化转型促进中心，分别给予100万元、20万元奖补；(3)对新获批的市级智能制造示范工厂，给予10万元奖补；(4)对获批市级数字化转型标杆的中小微企业给予10万元奖补。配套成立领航智改数转创新赋能中心，提供"一揽子"解决方案。',tags:['泸州','六大产业','提质倍增','智改数转'],url:'https://www.luzhou.gov.cn/wdzsk/jjhxxhj1/hqzc/content_1072190'},
+{id:66,t:'policy',lv:'市级',dm:'智能制造',nm:'遂宁市工业领域设备更新及智改数转政策',dn:'遂宁市经信局',yr:2025,docNo:'遂经信〔2025〕105号',desc:'推进遂宁传统产业智能化改造数字化转型，开展市级设备更新及智改数转政策资金申报，支撑实业兴市战略部署。',detail:'政策内容：(1)设备更新支持——对工业领域大规模设备更新项目给予资金支持；(2)智改数转奖补——对智能化改造和数字化转型项目给予设备和软件投资比例奖补；(3)示范项目支持——对评为标杆的项目给予额外奖励。遂宁坚持实业兴市战略，以智改数转为抓手培育新质生产力，已在全市范围开展项目征集和评审工作。2024年度市级项目已组织专家评审并公示。',tags:['遂宁','智改数转','设备更新','实业兴市'],url:'https://www.suining.gov.cn/gongkai/show/5ae4dd3fe202bdd19f4d45086d101a9f.html'},
+{id:67,t:'policy',lv:'市级',dm:'智能制造',nm:'宜宾市传统产业智改数转赋能行动',dn:'宜宾市政府',yr:2026,docNo:'-',desc:'以感恩奋进逐立上游为指向，实施传统产业智改数转赋能行动，配合新兴研发机构江源行动、制造业双百工程行动等举措。',detail:'行动框架：(1)传统产业智改数转赋能行动——推动白酒、化工、轻纺等宜宾传统优势产业数字化转型；(2)制造业双百工程行动——培育100个重大项目和100家重点企业；(3)新兴研发机构江源行动——建设新型研发机构促进科技成果转化；(4)未来产业创新培育行动——布局人工智能、新能源等未来产业。宜宾在五粮液等龙头企业的智改数转方面取得显著成效，工业互联网标识解析体系覆盖白酒行业。',tags:['宜宾','智改数转','双百工程','白酒行业'],url:'http://www.yibin.gov.cn/xxgk/zcfg/szfbwj/qt_52/202406/t20240606_1992839.html'},
+{id:68,t:'policy',lv:'市级',dm:'智能制造',nm:'自贡市工业领域设备更新和智改数转项目支持',dn:'自贡市经信局',yr:2025,docNo:'-',desc:'转发省级智改数转切块资金项目入库申报通知，推动自贡工业企业设备更新和技术改造，服务老工业城市转型升级。',detail:'政策要点：(1)对接省级智改数转切块资金项目——组织企业申报省经信厅设备更新和智改数转项目入库；(2)设备更新支持——对工业领域设备更新项目给予省级奖补；(3)技术改造推进——支持企业通过技术改造提升智能化水平。自贡作为老工业城市，重点推动盐化工、装备制造等传统产业的数字化改造。',tags:['自贡','智改数转','老工业城市','设备更新'],url:'http://zgs.sczwfw.gov.cn/art/2024/6/10/art_15773_264118.html'},
+{id:69,t:'policy',lv:'省级',dm:'工业AI',nm:'天津市促进人工智能创新发展行动方案(2025—2027年)',dn:'天津市人民政府办公厅',yr:2025,docNo:'津政办发〔2025〕13号',desc:'以AI+信创为特色，提出4方面19项重点任务，到2027年攻克100项关键核心技术，AI基础核心企业营收突破1000亿元。',detail:'方案从夯实底层技术提升核心能力、开展"人工智能+"行动赋能千行百业、培育优质企业和平台载体推动产业集聚、强化要素供给优化发展环境四方面提出19项重点任务。到2027年，攻克100项关键核心技术，在GPU、AI操作系统、AI服务器、具身智能等领域技术水平位居全国前列，培育30个人工智能应用标杆场景，基础核心企业营业收入突破1000亿元。重点实施"人工智能+制造"行动，推进制造业数智化转型。',tags:['天津','人工智能+','AI+制造','信创'],url:'https://www.tj.gov.cn/zwgk/szfwj/tjsrmzfbgt/202505/t20250517_6933197.html'},
+{id:70,t:'policy',lv:'省级',dm:'数字化转型',nm:'天津市制造业数字化转型实施方案',dn:'天津市人民政府办公厅',yr:2024,docNo:'津政办发〔2024〕42号',desc:'面向制造业数字化转型全覆盖目标，构建服务商资源池和诊断服务体系，推动制造业数字化、网络化、智能化发展。',detail:'方案明确制造业数字化转型路线图，构建"134"工作思路推进企业数字化智能化转型。建立制造业数字化转型服务商资源池，培育高水平服务商66个，其中10家在国家智能制造系统解决方案"揭榜挂帅"中成功揭榜。累计打造5G全连接工厂25家（其中国家级14家），推动制造业数字化、网络化、智能化改造全覆盖，加速产业模式和企业组织形态变革。',tags:['天津','制造业数字化转型','智改数转','5G全连接工厂'],url:'https://gyxxh.tj.gov.cn/ZWGK4147/ZCWJ6355/wjwj/'},
+{id:71,t:'policy',lv:'省级',dm:'工业AI',nm:'天津市人工智能赋能新型工业化实施方案',dn:'天津市工业和信息化局',yr:2024,docNo:'-',desc:'以人工智能全方位赋能新型工业化为核心，推进AI与制造业深度融合，培育新质生产力。',detail:'方案于2024年底由市工业和信息化局印发，旨在推进人工智能全方位赋能新型工业化，形成新质生产力。重点围绕AI与信创产业融合、工业大模型应用、智能工厂建设等方向，加速新一代信息技术与制造业全过程全要素深度融合，推进制造业高端化、智能化、绿色化发展，支撑天津全国先进制造研发基地建设。',tags:['天津','AI赋能新型工业化','工业大模型','新质生产力'],url:'https://gyxxh.tj.gov.cn/ZWXX5652/GXDT9285/202502/t20250220_6862724.html'},
+{id:72,t:'policy',lv:'省级',dm:'工业AI',nm:'河北省推动"人工智能+"行动计划(2025—2027年)',dn:'河北省人民政府办公厅',yr:2025,docNo:'-',desc:'聚焦八大重点产业实施AI赋能，充分发挥河北省算力规模领先和产业基础雄厚优势，推动AI规模化应用。',detail:'行动计划于2025年11月经省政府审定同意印发，聚焦人工智能+制造等八大重点产业全面赋能。充分发挥河北省算力规模领先、产业基础雄厚优势，深入推进人工智能与制造业融合。重点任务包括强化算力供给、推动大模型在制造业领域规模化应用、打造行业级AI解决方案、培育智能制造标杆示范等。计划通过三年行动，显著提升全省人工智能产业发展水平和制造业智能化改造覆盖面。',tags:['河北','人工智能+','八大产业赋能','算力'],url:'http://www.hebei.gov.cn/columns/87565cb5-9e3e-4d67-b368-97545b6b52aa/202511/12/f3d9c03c-8d70-4a36-83e7-f38cb117b3e1.html'},
+{id:73,t:'policy',lv:'省级',dm:'数字化转型',nm:'河北省数字技术赋能制造业高质量发展实施方案',dn:'河北省人民政府办公厅',yr:2025,docNo:'-',desc:'以大模型在制造业规模化应用为牵引，点线面一体化推进智改数转网联，实现数字化改造全覆盖。',detail:'方案以大模型在制造业领域规模化应用为牵引，点、线、面一体化推进制造业数字化、网络化、智能化转型。到2027年，推动规模以上制造业企业、专精特新中小企业、特色产业集群"领跑者"企业"智改数转网联"，实现数字化改造全覆盖；工业企业关键工序数控化率达到78%，数字化研发设计工具普及率达到90%，工业互联网平台应用普及率显著提升。重点部署大模型赋能、工业互联网创新、智能工厂梯度培育等工程。',tags:['河北','数字技术赋能','智改数转网联','大模型'],url:'http://www.hebei.gov.cn/columns/ff89085e-88f8-45ab-9c91-1ae3618365e5/202502/17/6685e17b-bb1a-4b3d-bda6-eeb29063f43b.html'},
+{id:74,t:'policy',lv:'省级',dm:'智能制造',nm:'河北省制造业数字化转型专项行动方案(2023-2027年)',dn:'河北省人民政府办公厅',yr:2023,docNo:'冀政办字〔2023〕13号',desc:'作为数字河北行动方案六个专项行动之一，推进数字经济与实体经济深度融合，加快制造业数字化转型。',detail:'方案是《加快建设数字河北行动方案(2023-2027年)》六个专项行动的重要组成部分，旨在推进数字经济与实体经济深度融合，加快制造业数字化、网络化、智能化转型，推动工业经济高质量发展。重点围绕钢铁、装备制造、石化等河北优势产业，推进工业互联网平台建设、智能制造示范工厂培育、产业链数字化协同改造等任务，为河北省从传统制造向智造强省转型提供政策支撑。',tags:['河北','制造业数字化转型','数字河北','工业互联网'],url:'http://www.hebei.gov.cn/columns/1e429b73-b9f4-4bff-8d91-4745e4ac9dfd/202308/20/eb2f2b60-7944-481a-b7f9-0e566e36300c.html'},
+{id:75,t:'policy',lv:'省级',dm:'数字化转型',nm:'山西省制造业数字化转型行动计划(2024-2030年)',dn:'山西省工业和信息化厅',yr:2024,docNo:'-',desc:'面向2024-2030年中长期推进制造业数字化转型，构建服务商资源池和工业互联网平台体系，支撑产业链协同智改数转。',detail:'计划是山西省制造业数字化转型中长期纲领性文件，明确以"智改数转网联"为主攻方向，系统推进制造业数字化、网络化、智能化转型。核心举措包括：构建数字化转型服务商资源池，分年度征集整体解决方案、规划咨询、评价监理等多类专业服务商；梯次培育壮大工业互联网平台体系；促进产业链上下游数字化协同改造；推动企业首席数据官制度建设。',tags:['山西','制造业数字化转型','智改数转','工业互联网平台'],url:'https://gxt.shanxi.gov.cn/zfxxgk/zfxxgkml/xxh/'},
+{id:76,t:'policy',lv:'省级',dm:'工业AI',nm:'山西省推进数字经济全面发展实施方案(2026—2028年)',dn:'山西省人民政府办公厅',yr:2025,docNo:'晋政办发〔2025〕36号',desc:'面向数字经济全面发展目标，强化数字产业化与产业数字化双轮驱动，深化AI+制造等融合应用。',detail:'方案于2025年12月31日经省人民政府同意印发，围绕数字产业化、产业数字化、数据价值化、数字化治理四大方向，强化数字基础设施建设和数据要素保障。在产业数字化方面，深化人工智能等新一代信息技术与制造业融合，推进"人工智能+制造"行动，加快重点行业工业互联网平台建设和智能制造示范推广，支撑山西资源型经济转型发展。',tags:['山西','数字经济','AI+制造','产业数字化'],url:'https://www.shanxi.gov.cn/zcwjk/bgtwj/202601/t20260105_10032387_gfxwj.shtml'},
+{id:77,t:'policy',lv:'省级',dm:'工业AI',nm:'内蒙古自治区促进人工智能产业高质量发展实施方案(2025-2027年)',dn:'自治区政务服务与数据管理局等五部门',yr:2025,docNo:'内政数发〔2025〕3号',desc:'从技术创新突破、智能算力场打造、数据要素保障、应用示范引领、产业生态完善5方面明确23项重点任务。',detail:'方案由自治区政务服务与数据管理局会同科技厅、工信厅、能源局、通信管理局五部门联合印发，从推动技术创新突破、打造智能算力场、加强数据要素保障、强化应用示范引领、健全完善产业生态5个方面明确了23项重点任务。重点支持电力能源、现代农牧、生态环境、交通运输、装备制造等特色领域AI应用，充分利用内蒙古"东数西算"国家枢纽和丰富绿电优势发展算力产业。',tags:['内蒙古','人工智能产业','智能算力','东数西算'],url:'https://zsj.nmg.gov.cn/zwgk/zfxxgk/fdzdgknr/zfwj/202503/t20250325_2687496.html'},
+{id:78,t:'policy',lv:'省级',dm:'工业AI',nm:'内蒙古自治区促进数据和人工智能产业高质量发展若干政策',dn:'内蒙古自治区人民政府',yr:2025,docNo:'内政字〔2025〕119号',desc:'自治区政府层面出台的支持数据和AI产业发展综合性政策，含算力补贴、数据流通、场景开放等配套措施。',detail:'政策由内蒙古自治区人民政府于2025年7月12日印发，涵盖算力基础设施建设补贴、数据要素流通交易、人工智能场景开放和示范应用、产业生态培育等多方面支持措施。结合内蒙古作为国家算力枢纽的区位优势，重点推动算电协同、绿色智算，支持AI在能源、制造、农牧等优势产业规模化应用，强化资金保障和人才支撑。',tags:['内蒙古','数据和AI产业政策','算力补贴','场景开放'],url:'https://www.nmg.gov.cn/ztzl/zqsk/hmzc/jycy/202507/t20250718_2760747.html'},
+{id:79,t:'policy',lv:'省级',dm:'智能制造',nm:'辽宁省深化制造业智能化改造数字化转型三年行动计划(2026-2028年)',dn:'辽宁省人民政府',yr:2026,docNo:'-',desc:'锚定2028年实现规上工业企业智改数转全覆盖，关键工序数控化率和数字化研发设计工具普及率高于全国平均水平。',detail:'行动计划是辽宁省推进"数字辽宁、智造强省"建设的核心政策文件。到2028年，辽宁省规模以上工业企业将实现智改数转全覆盖，关键工序数控化率、数字化研发设计工具普及率高于全国平均水平。核心举措包括：普及智改数转评估和诊断体系，实现全省规上工业企业评估全覆盖和定期更新；为全省规上工业企业提供"一企一策"诊断服务；打造全省诊断公共服务平台；分行业培育智改数转标杆企业；推进智能工厂梯度培育。',tags:['辽宁','智改数转','数字辽宁智造强省','一企一策'],url:'https://gxt.ln.gov.cn/gxt/zfxxgk/fdzdgknr/jyta/srddbjy/srdssjwchy2026n/2026062516420438797/index.shtml'},
+{id:80,t:'policy',lv:'省级',dm:'智能制造',nm:'吉林省制造业智能化改造和数字化转型行动方案(2023-2025年)',dn:'吉林省"数字吉林"建设领导小组办公室',yr:2023,docNo:'数字吉林办〔2023〕5号',desc:'吉林省智改数转纲领性文件，力争三年推动全省有意愿的规模以上工业企业完成智能化改造和数字化转型。',detail:'方案由"数字吉林"建设领导小组办公室于2023年5月印发，是吉林省制造业智改数转的核心行动纲领。力争用三年时间，推动全省有意愿的规模以上工业企业完成智能化改造和数字化转型。围绕汽车、石化、食品、装备制造等吉林省重点产业，配套出台奖补实施细则，设立省级工业高质量发展专项资金，对智改数转项目、数字化车间、智能工厂等给予奖补支持。',tags:['吉林','智改数转','数字吉林','奖补政策'],url:'http://xxgk.jl.gov.cn/zsjg/fgw_136504/gkml/202305/t20230529_8716108.html'},
+{id:81,t:'policy',lv:'省级',dm:'工业AI',nm:'吉林省人民政府关于加快推进人工智能创新发展的实施意见',dn:'吉林省人民政府',yr:2025,docNo:'吉政发〔2025〕9号',desc:'聚焦AI+制造等重点领域规模化应用，到2027年智能算力突破5000PFLOPS，打造50个以上高价值示范应用场景。',detail:'实施意见由吉林省人民政府于2025年印发，坚持应用牵引、创新驱动、开放合作、生态赋能，强化算力、算法和数据供给，深入实施"人工智能+"行动。到2027年底，全省智能算力规模突破5000PFLOPS，形成10个左右具有行业影响力的高质量数据集和5个左右先进可用的垂直领域大模型；打造50个以上高价值示范应用场景。重点推动"人工智能+制造"，深化人工智能在研发设计、生产制造、质量检测等制造业核心环节应用。',tags:['吉林','人工智能+制造','算力供给','标杆应用'],url:'http://www.jl.gov.cn/'},
+{id:82,t:'policy',lv:'省级',dm:'工业AI',nm:'黑龙江省深入实施"人工智能+"行动的实施方案',dn:'黑龙江省人民政府',yr:2026,docNo:'黑政规〔2026〕1号',desc:'全面贯彻国务院AI+行动意见，到2027年算力规模达50EFlops，打造30个以上高质量数据集，建5个以上垂直大模型。',detail:'方案由黑龙江省人民政府于2026年2月14日印发，是全省首个AI+行动纲领。立足黑龙江省科研、产业、数据、应用场景优势，深入实施"人工智能+"行动。到2027年，全省算力规模达到50EFlops，人工智能领域省级创新平台达到20个以上，打造面向行业的高质量数据集30个以上，建设5个以上面向重点行业的垂直领域大模型。重点推动AI+制造、AI+农业、AI+冰雪经济等特色场景应用。',tags:['黑龙江','人工智能+','算力基础设施','垂直大模型'],url:'https://hlj.gov.cn/hlj/c116016nbc/202603/c00_31928047.shtml'},
+{id:83,t:'policy',lv:'省级',dm:'工业AI',nm:'黑龙江省支持人工智能创新发展若干政策措施',dn:'黑龙江省人民政府',yr:2026,docNo:'-',desc:'配套AI+行动实施方案的专项扶持政策，含科技创新支撑、算力补贴、应用场景奖励、人才引进等一揽子措施。',detail:'政策措施与《黑龙江省深入实施"人工智能+"行动的实施方案》配套出台，重点措施包括：增强科技创新支撑，在省自然科学基金中征集AI赋能项目，通过"揭榜挂帅"组织关键技术攻关；加强算力基础设施建设支持；推动AI应用场景开放和示范推广，对标杆应用给予奖励；强化人才引进和培育保障；完善AI产业生态。2026年7月已出台4项政策实施细则，涵盖算力、数据、应用、生态等维度。',tags:['黑龙江','AI创新政策','算力补贴','揭榜挂帅'],url:'https://www.hlj.gov.cn/hlj/c108386/202602/c00_31915566.shtml'},
+{id:84,t:'policy',lv:'省级',dm:'工业AI',nm:'福建省推动人工智能产业发展和赋能应用若干措施',dn:'福建省人民政府办公厅',yr:2025,docNo:'闽政办〔2025〕30号',desc:'围绕模型攻关、研发创新、赋能应用、企业培育等提出10条措施，推动AI与经济社会深度融合。',detail:'2025年11月4日印发，有效期至2028年底。核心内容包括：支持行业垂直模型攻关（单个项目最高1000万元补助）、推动行业赋能应用（深化"智赋百景"行动，各行业主管部门每年提供10个以上应用场景）、培育优质企业（单个最高300万元奖励）、优化普惠算力（按购买费用50%补助、单家最高50万元）、加快福州/厦门/泉州省级AI产业园建设、强化数据供给和人才引育等。',tags:['福建','人工智能+','模型攻关','赋能应用'],url:'http://www.fj.gov.cn/zwgk/zxwj/szfbgtwj/202511/t20251107_7031533.htm'},
+{id:85,t:'policy',lv:'省级',dm:'数字化转型',nm:'福建省加快推进数字化全面赋能经济社会高质量发展总体方案',dn:'福建省工业和信息化厅',yr:2025,docNo:'闽工信函信息〔2025〕346号',desc:'以数字化全面赋能为主线，推动工业制造等重点领域数智化转型，促进新一代信息技术在制造业大规模深层次普及应用。',detail:'由省工信厅印发，与国办《制造业数字化转型行动方案》衔接，属于福建省落实制造业数字化转型和数智赋能工业制造的总体部署文件。要求各地培育制造业数字化转型促进中心，提升数字化转型专业化服务水平，促进新一代信息技术在制造业大规模、深层次、高水平普及应用。各设区市工信局据此制定本地实施方案。',tags:['福建','数字化转型','工业制造','数智赋能'],url:'http://xxgk.longyan.gov.cn/jmj/gkml/3000/202606/t20260630_2299522.htm'},
+{id:86,t:'policy',lv:'省级',dm:'工业AI',nm:'江西省"人工智能+"行动方案',dn:'江西省人民政府',yr:2025,docNo:'赣府发〔2025〕16号',desc:'部署12项"人工智能+"重点行动，聚焦工业数智等特色场景，力争到2030年智算规模达5000PFlops。',detail:'2025年12月18日省政府印发，围绕"1269"行动计划部署12项"人工智能+"重点行动，构建"硬基础+软建设"并重的推进体系。主要目标分两步走：到2027年全省智算服务规模达到2000PFlops，打造3个以上数据要素标杆；到2030年全省智算服务规模达到5000PFlops，打造5个以上数据要素标杆，人工智能应用水平跻身全国前列。重点聚焦工业数智、智慧农业等特色场景，以行业场景应用为牵引释放AI乘数效应。',tags:['江西','人工智能+','1269行动计划','工业数智'],url:'https://www.jiangxi.gov.cn/jxsrmzf/szfwj/pc/content/content_2003643660326932480.html'},
+{id:87,t:'policy',lv:'省级',dm:'工业AI',nm:'江西省人工智能与制造业数字化转型协同实施方案',dn:'江西省工业强省建设工作领导小组',yr:2025,docNo:'赣工强省小组字〔2025〕3号',desc:'推动AI与制造业数字化转型双轮驱动，2025年打造20个典型应用场景，到2027年建设一批高质量行业数据集和AI示范工厂。',detail:'由省工业强省建设工作领导小组印发，省工信厅牵头实施。核心目标是坚持应用牵引，突出对智能化装备和具有智能化属性的软硬件产品重点引导，以强化数据挖掘汇聚为基础、以人工智能规模化研发应用为主攻方向、以智能化设备普及为路径，形成数字化转型与人工智能双轮驱动格局。2025年力争在重点行业打造20个左右典型应用场景；到2027年力争建设一批高质量行业数据集。围绕全省12条重点产业链遴选AI典型应用场景，2025年已认定24个场景。',tags:['江西','AI+制造','智改数转','场景遴选'],url:'https://gxt.jiangxi.gov.cn/jxsgyhxxht/gztz/content/content_1970776056539684864.html'},
+{id:88,t:'policy',lv:'省级',dm:'工业AI',nm:'河南省加快人工智能赋能新型工业化行动方案（2025—2027年）',dn:'河南省人民政府办公厅',yr:2025,docNo:'豫政办〔2025〕45号',desc:'以AI等新一代信息技术与制造业深度融合为主线，目标到2027年AI产业规模突破1600亿元，建成全国重要AI产业高地。',detail:'2025年9月省政府办公厅印发。以人工智能等新一代信息技术与制造业深度融合为主线，遵循产业转型、企业改造、园区提升、产品升级四条路径推动制造业高端化智能化绿色化转型。核心目标：到2027年规模以上工业企业智能应用场景覆盖范围实现从单点突破向综合集成跃升，人工智能产业规模突破1600亿元，建成全国重要的人工智能产业高地和创新应用示范区。重点任务涵盖智能制造、智慧矿山、智慧冷链等典型场景。',tags:['河南','AI赋能','新型工业化','产业高地'],url:'https://fgw.henan.gov.cn/2025/09-15/3226857.html'},
+{id:89,t:'policy',lv:'省级',dm:'工业AI',nm:'河南省支持人工智能产业生态发展若干政策措施',dn:'河南省人民政府',yr:2025,docNo:'豫政〔2025〕17号',desc:'从模型研发、算力供给、数据开发、场景培育等十方面提出真金白银支持措施，设立30亿元AI产业基金，有效期3年。',detail:'2025年8月4日省政府印发，有效期3年。覆盖模型研发应用、算力供给服务、数据开发利用、场景培育、企业引育等十大方面。核心措施包括：实施"揭榜挂帅"推动重大产业关键技术攻关；设立30亿元人工智能产业子基金引导社会资本投入；支持研发推广具身智能机器人、AI手机等人工智能终端产品；加强优质企业引育；深化应用场景培育，推动AI在制造业等重点领域落地应用。2025年已启动首批43个省级AI产业生态发展项目评选。',tags:['河南','产业生态','30亿基金','具身智能'],url:'https://fgw.henan.gov.cn/2025/08-09/3200193.html'},
+{id:90,t:'policy',lv:'省级',dm:'工业AI',nm:'湖北省"人工智能+制造"专项行动实施方案',dn:'湖北省经济和信息化厅等八部门',yr:2026,docNo:'鄂经信智数〔2026〕24号',desc:'贯彻落实工信部"人工智能+制造"专项行动实施意见，协同推进智能产业化和产业智能化，对AI+制造进行全方位系统部署。',detail:'2026年由省经信厅、省委网信办、省发改委、省科技厅、省国资委、省市场监管局、省数据局、省通信管理局八部门联合印发。贯彻落实工信部等八部门《"人工智能+制造"专项行动实施意见》，对"人工智能+制造"进行更大范围、更宽领域、更深程度的系统布局和全面部署。协同推进智能产业化和产业智能化，推动人工智能在制造业设计、中试、生产、服务、运营全环节落地应用。',tags:['湖北','AI+制造','专项行动','八部门联合'],url:'https://jxt.hubei.gov.cn/fbjd/zc/gfxwj/202604/t20260413_5913081.shtml'},
+{id:91,t:'policy',lv:'省级',dm:'工业AI',nm:'湖北省人民政府办公厅关于加快推进人工智能产业发展的实施意见',dn:'湖北省人民政府办公厅',yr:2025,docNo:'鄂政办发〔2025〕34号',desc:'构建科技创新牵引、产业能级支撑的AI发展体系，目标到2027年建成全国影响力AI创新高地，产业规模达3500亿元。',detail:'2025年10月13日省政府办公厅印发。力争到2027年基本建成具有全国影响力的人工智能创新发展高地、产业发展集聚区、融合应用样板区、全国数据要素市场中部枢纽。核心任务：突破深度学习芯片、类脑芯片、车规级芯片等关键技术；培育千亿级规模企业，打造六个"万人研发基地"；建设5G工厂、无人工厂、数字孪生工厂；聚焦"51020"先进制造业集群深化AI与工业互联网融合；发展AI+农业、建造、现代服务业；争创国家AI应用中试基地。',tags:['湖北','AI产业','创新高地','3500亿'],url:'https://jxt.hubei.gov.cn/bmdt/rdjj/202510/t20251023_5796749.shtml'},
+{id:92,t:'policy',lv:'省级',dm:'工业AI',nm:'海南省推动"人工智能+"行动方案（2026—2028年）',dn:'海南省人民政府办公厅',yr:2026,docNo:'琼府办〔2026〕6号',desc:'以"双核驱动"构建特色AI产业生态，聚焦商业航天等4大特色产业+N个重点领域，到2028年AI核心产业规模大幅提升。',detail:'2026年2月24日省政府办公厅印发，经省委、省政府同意。方案紧扣国家"人工智能+"行动部署，立足海南自贸港产业特色，构建"双核驱动"推进路径：聚焦商业航天等4大海南特色产业，以及防灾减灾等N个重点行业领域，形成"人工智能+"解决方案。重点任务包括构建智慧发射场数字孪生体、推进卫星数据智能处理及航天制造智能检测等示范应用。到2028年建成高能级创新平台、培育核心竞争力企业，AI核心产业规模大幅提升。',tags:['海南','人工智能+','自贸港','商业航天'],url:'https://www.hainan.gov.cn/hainan/xctp/202602/2252d879ef3146b0bde41552b323267c.shtml'},
+{id:93,t:'policy',lv:'省级',dm:'数字化转型',nm:'重庆市制造业数字化转型"天工焕新"行动计划',dn:'重庆市人民政府办公厅',yr:2024,docNo:'渝府办发〔2024〕85号',desc:'重庆市制造业数字化转型核心行动方案，以"产业大脑+未来工厂"为核心场景，系统性推进制造业数智化转型。',detail:'以"产业大脑+未来工厂"为核心场景，推进制造业数字化转型。目标到2027年建成数字化车间1400个、智能工厂230个，构建"四侧协同促四链融合"发展格局。提出梯度培育基础级、先进级、卓越级智能工厂，开展未来工厂申报（含AI赋能示范型和协同共生链主型），推动企业"研产供销服"全流程数字化改造。',tags:['重庆','智改数转','产业大脑','未来工厂'],url:'http://jjxxw.cq.gov.cn/zwgk_213/zcwj/qtwj/202501/t20250117_14175226.html'},
+{id:94,t:'policy',lv:'省级',dm:'工业AI',nm:'重庆市促进实数融合推动"人工智能+制造"实施方案',dn:'重庆市经济和信息化委员会',yr:2025,docNo:'渝经信未来〔2025〕7号',desc:'重庆首个AI+制造专项实施方案，以"双向赋能"为主线推动人工智能赋能"33618"现代制造业集群。',detail:'以人工智能创新与制造业应用"双向赋能"为主线，推动AI赋能"33618"现代制造业集群高质量发展。目标到2027年规上企业数字化研发设计工具普及率达90%、关键工序数控化率达75%，建成细分行业"产业大脑"30个、"未来工厂"和国家级智能工厂各40个，打造产业智能化、绿色化、融合化发展新优势。',tags:['重庆','人工智能+制造','双向赋能','33618集群'],url:'http://jjxxw.cq.gov.cn/zwgk_213/zcwj/qtwj/202512/t20251230_15280273.html'},
+{id:95,t:'policy',lv:'省级',dm:'工业AI',nm:'重庆市推动"人工智能+"行动方案',dn:'重庆市人民政府办公厅',yr:2025,docNo:'渝府办发〔2025〕60号',desc:'重庆AI+综合性行动方案，推动AI与数字重庆双向赋能，建设全国人工智能应用高地。',detail:'贯彻落实国务院"人工智能+"行动意见，推动AI和数字重庆双向赋能，加快建设全国人工智能应用高地。充分发挥重庆数据资源富集、算力支撑坚实、应用场景丰富等优势，推动AI科技创新与产业创新和超大城市现代化治理深度融合。涵盖智能产业化、产业智能化、城市智治等方向，覆盖制造、交通、医疗、政务等多领域AI应用。',tags:['重庆','人工智能+','AI应用高地','数字重庆'],url:'http://wap.cq.gov.cn/zwgk/zfxxgkml/szfwj/xzgfxwj/szfbgt/202512/t20251217_15251374.html'},
+{id:96,t:'policy',lv:'省级',dm:'工业AI',nm:'贵州省推动人工智能高质量发展行动方案(2025—2027年)',dn:'贵州省人民政府办公厅',yr:2024,docNo:'黔府办函〔2024〕69号',desc:'贵州省级AI发展纲领性文件，推动人工智能与特色产业深度融合，建设"数智贵州"。',detail:'经省人民政府同意印发，提出实施"人工智能+"行动，推动酱香白酒、化工、能源等行业领域大模型应用。支持民营龙头企业和链主企业建设综合性以及行业性大模型应用平台，推动民营企业参与"数智贵州"建设。方案明确2025-2027年三年度发展目标和重点任务，涵盖智能算力、大模型、应用场景等核心领域。',tags:['贵州','人工智能+','数智贵州','大模型'],url:'https://www.guizhou.gov.cn/zwgk/zcfg/szfwj/qfbh/202501/t20250107_86589093.html'},
+{id:97,t:'policy',lv:'省级',dm:'数字化转型',nm:'贵州省工业领域数字化转型行动方案',dn:'贵州省工业和信息化厅',yr:2024,docNo:'-',desc:'贵州工业领域数字化转型总体行动方案，聚焦"8+4"重点行业推进数字化改造全覆盖。',detail:'2024年2月由省工信厅印发，聚焦"8+4"重点行业推进数字化转型。截至2025年第三季度，全省两化融合发展水平达63.5，排名全国第14位。累计培育50余个工业大模型典型应用场景，打造先进级和卓越级智能工厂，建成100个数字车间，推动1200家规上企业完成数字化改造。',tags:['贵州','数字化转型','8+4重点行业','智能工厂'],url:'https://gxt.guizhou.gov.cn/ztzl/gzhgfxwjsjk/gfxwjsjk/202402/t20240202_83672093.html'},
+{id:98,t:'policy',lv:'省级',dm:'工业AI',nm:'贵州省加快人工智能应用场景培育和开放实施方案',dn:'贵州省大数据发展管理局等二十九部门',yr:2026,docNo:'黔数〔2026〕12号',desc:'贵州多部门联合发文，加快AI应用场景培育开放，推动新场景大规模应用落地。',detail:'由省大数据局联合28个省直部门共同印发，贯彻落实国务院"人工智能+"行动意见和国务院办公厅场景培育实施意见。立足贵州数据资源和算力优势，加快人工智能应用场景培育和开放，推动新技术新场景大规模应用，涵盖智能制造、智慧农业、智慧文旅等多个领域场景开放与培育，是省级AI应用场景专项政策。',tags:['贵州','AI场景','应用开放','多部门联合'],url:'http://dsj.guizhou.gov.cn/ztzl/rdzt/rgznyycjpyhkf/xctg/202607/t20260707_90593227.html'},
+{id:99,t:'policy',lv:'省级',dm:'工业AI',nm:'陕西省深入实施"人工智能+"行动方案(2025-2027年)',dn:'陕西省发展和改革委员会',yr:2025,docNo:'-',desc:'陕西省级"人工智能+"综合行动方案，推动AI与经济社会多领域深度融合。',detail:'由省发改委会同省直相关部门研究制定并印发，深入贯彻党中央国务院决策部署，推动人工智能与经济社会各领域深度融合。方案覆盖2025-2027年三个年度，涵盖AI赋能制造、农业、能源、文旅等重点产业领域，强化算力基础设施、数据要素、技术创新等支撑，是陕西省AI发展纲领性文件。',tags:['陕西','人工智能+','综合行动','发改委'],url:'https://fzggj.yangling.gov.cn/zwgk/fdzdgknr/gkwj/1990578680761614338.html'},
+{id:100,t:'policy',lv:'省级',dm:'数字化转型',nm:'陕西省制造业数字化转型实施方案',dn:'陕西省工业和信息化厅',yr:2024,docNo:'陕工信发〔2024〕298号',desc:'陕西制造业数字化转型核心方案，推进规上工业企业数字化智能化水平提升。',detail:'由省工信厅2024年印发，围绕制造业数字化转型目标，推进规上工业企业数字化、智能化水平提升。方案配套企业上云用数、首版次软件产品等专项支持政策，组织开展数字化转型水平评估试点工作。强调以新一代信息技术与制造业深度融合为主线，分行业分领域挖掘典型场景，加快核心技术攻关和成果推广，推动质量变革、效率变革、动力变革。',tags:['陕西','制造业转型','数字化转型','规上企业'],url:'https://gxt.shaanxi.gov.cn/cyfz/xxh/202603/t20260325_3624707.html'},
+{id:101,t:'policy',lv:'省级',dm:'工业AI',nm:'陕西省加快推动人工智能产业发展实施方案(2024-2026年)',dn:'陕西省工业和信息化厅',yr:2024,docNo:'-',desc:'陕西AI产业发展专项方案，推动AI产业高质量发展，全方位赋能新型工业化。',detail:'2024年5月由省工信厅印发，抢抓人工智能加速发展历史机遇，推动人工智能产业高质量发展，全方位、深层次赋能新型工业化，加快构建具有陕西特色的现代化产业体系。方案覆盖2024-2026年三个年度，围绕AI技术创新、产业培育、应用赋能等重点方向部署任务，省工信厅已公开征集"人工智能+制造"服务平台，组建专家智库。',tags:['陕西','AI产业','新型工业化','专家智库'],url:'https://gxt.shaanxi.gov.cn/cyfz/tyltj/202601/t20260112_3604123.html'},
+{id:102,t:'policy',lv:'省级',dm:'智能制造',nm:'甘肃省加快推动工业领域"智改数转网联"三年行动计划(2024-2026年)',dn:'甘肃省工业和信息化厅等六部门',yr:2024,docNo:'甘工信发〔2024〕74号',desc:'甘肃工业领域"智改数转网联"核心行动计划，以新一代信息技术与制造业深度融合为主线。',detail:'2024年3月由省工信厅、省发改委、省科技厅、省财政厅、省政府国资委、省通信管理局六部门联合印发。以新一代信息技术与制造业深度融合为主线，以工业互联网创新发展为着力点，聚焦企业、链条、园区全方位推进工业企业智能化改造、数字化转型、网络化联接。配套5G全连接工厂建设实施细则、工业互联网平台培育、智能制造体系建设等措施。',tags:['甘肃','智改数转网联','六部门','三年行动'],url:'http://gxt.gansu.gov.cn/gxt/c109885/202404/173891675.shtml'},
+{id:103,t:'policy',lv:'省级',dm:'工业AI',nm:'甘肃省深入实施"人工智能+"行动方案',dn:'甘肃省人民政府',yr:2026,docNo:'甘政发〔2026〕1号',desc:'甘肃省政府1号文件，全面部署AI+行动，推动AI从"辅助工具"升级为"核心引擎"。',detail:'2026年1月6日由省政府印发（省政府1号文件），聚焦六大实施领域、强化八大支撑，推动人工智能从"辅助工具"升级为"核心引擎"。提出到2027年AI与重点领域广泛融合，新一代智能终端、智能体应用普及率达70%左右，智能经济核心产业规模快速增长，智能系统和智能装备在重点行业广泛应用。涵盖制造、农业、能源、文旅等核心领域赋能。',tags:['甘肃','人工智能+','省府1号文','核心引擎'],url:'http://www.gansu.gov.cn/gsszf/c100054/202601/174267551.shtml'},
+{id:104,t:'policy',lv:'省级',dm:'智能制造',nm:'甘肃省高端化智能化绿色化改造推进传统产业转型升级实施方案(2023-2025年)',dn:'甘肃省人民政府办公厅',yr:2023,docNo:'甘政办发〔2023〕74号',desc:'甘肃传统产业"三化"改造方案，推动互联网、大数据、AI与传统产业深度融合。',detail:'由省政府办公厅印发，推动传统产业高端化、智能化、绿色化"三化"改造，引领全省工业迈向产业链中高端。方案强调推动互联网、大数据、人工智能与传统产业深度融合，配套《甘肃省智能工厂梯度培育管理实施细则》和《甘肃省智能制造体系建设评价管理实施细则》，梯次建设培育省级智能制造体系，是甘肃制造业转型的基础性政策文件。',tags:['甘肃','三化改造','传统产业','梯度培育'],url:'http://gxt.gansu.gov.cn/gxt/c107572/202309/173770702.shtml'},
+{id:105,t:'policy',lv:'省级',dm:'数字化转型',nm:'青海省数字经济发展三年行动方案(2023-2025年)',dn:'青海省人民政府',yr:2023,docNo:'青政〔2023〕16号',desc:'青海省级数字经济发展总体方案，涵盖工业互联网平台创建和制造业数字化方向。',detail:'2023年4月由省政府印发，提出到2025年数字经济规模达1200亿元以上，占GDP比重超30%。方案包含制造业数字化方向，提出创建3个以上工业互联网平台，数据中心机架规模超10万架，深度融入全国一体化大数据中心体系。是青海数字经济领域基础性、纲领性文件，涵盖产业数字化和数字产业化，但未单独设立AI+制造专项条款。',tags:['青海','数字经济','工业互联网','三年行动'],url:'http://zhdj.xndjw.gov.cn/website/contents/12/130775.html'},
+{id:106,t:'policy',lv:'省级',dm:'智能制造',nm:'青海省智能工厂认定管理办法',dn:'青海省工业和信息化厅等部门',yr:2025,docNo:'青工信消〔2025〕107号',desc:'青海智能工厂梯度认定管理办法，建立基础级、先进级、卓越级智能工厂培育体系。',detail:'2025年由省工信厅、省发改委、省财政厅等六部门联合印发，贯彻落实工信部智能工厂梯度培育要求。建立基础级、先进级、卓越级智能工厂梯度培育认定体系，对青海省工业企业智能化水平进行分类评价和管理。是青海目前最直接涉及制造业智能化的省级正式发文政策，侧重于认定管理而非行动部署。',tags:['青海','智能工厂','梯度培育','认定管理'],url:'https://sft.qinghai.gov.cn/zwgk/fgwj/swwj/content_4458'},
+{id:107,t:'policy',lv:'省级',dm:'工业AI',nm:'宁夏回族自治区"人工智能+"行动方案(2025—2027年)',dn:'自治区党委办公厅、人民政府办公厅',yr:2025,docNo:'-',desc:'宁夏AI+综合性纲领文件，"两步走"推进AI赋能传统工业、特色农业和服务业。',detail:'2025年由自治区党委办公厅和政府办公厅联合印发，明确"两步走"目标：2025年算力规模达28万PFLOPS，培育引进10家以上AI大模型企业，打造100个以上重点行业典型应用场景；到2027年算力规模跃升至80万PFLOPS，AI产业链条加快完善。重点瞄准传统工业实施智能制造升级计划，推进AI在化工、新材料、装备制造等行业深度应用。',tags:['宁夏','人工智能+','两步走','智能制造'],url:'https://www.nx.gov.cn/zwxx_11337/zwdt/202507/t20250718_4964386_wap.html'},
+{id:108,t:'policy',lv:'省级',dm:'智能制造',nm:'宁夏回族自治区制造业高质量发展实施方案(2026—2027年)',dn:'自治区人民政府办公厅',yr:2026,docNo:'宁政办发〔2026〕13号',desc:'宁夏制造业高质量发展方案，目标数字化转型率达70%，AI典型应用场景突破100个。',detail:'2026年7月印发，坚持智能化、绿色化、融合化方向，加快构建以先进制造业为骨干的现代化产业体系。到2027年制造业增加值占GDP比重达20%，现代化工等六大产业产值突破6000亿元，数字化转型率达70%，AI典型应用场景突破100个。提出推进制造业数字化网络化智能化转型、发展智能制造、培育新质生产力等重点任务，是宁夏制造业最核心政策文件。',tags:['宁夏','制造业高质量发展','数字化转型','智能化'],url:'https://www.nx.gov.cn/zwgk/qzfwj/202607/t20260707_5283096_wap.html'},
+{id:109,t:'policy',lv:'省级',dm:'工业AI',nm:'新疆维吾尔自治区推进"人工智能+"行动工作方案(2026-2028年)',dn:'自治区发展改革委',yr:2026,docNo:'-',desc:'新疆AI+综合工作方案，部署十项重点任务推动AI与经济社会多领域深度融合。',detail:'2026年1月印发实施，立足新疆实际，围绕强化算力基础支撑、赋能工业补链强链、推进农业数智转型、促进消费提质增效等方面部署十项重点任务。在工业领域推动人工智能在设备运维、工艺优化、质量检测等环节深度应用。自治区成立"人工智能+"领导小组，并同步出台《2026年工作要点》，已开展"人工智能+制造"解决方案和典型应用案例征集工作。',tags:['新疆','人工智能+','十项任务','工业补链'],url:'https://www.xinjiang.gov.cn/xinjiang/dzdt/202601/1c650276a1df4f9a8edf6eb8081839bf.shtml'},
+{id:110,t:'policy',lv:'省级',dm:'工业AI',nm:'新疆维吾尔自治区推动"人工智能+特色优势产业集群"行动计划',dn:'新疆维吾尔自治区',yr:2026,docNo:'-',desc:'新疆AI赋能特色优势产业集群专项计划，推动AI与十大产业集群深度融合发展。',detail:'自治区层面专项推动AI与新疆十大特色优势产业集群深度融合的行动计划。依托"东数西算"绿色能源优势，发挥算力底座作用，推动AI在石油化工、新能源、纺织服装、农产品加工等特色优势产业集群场景应用和创新突破。该计划与《"人工智能+"行动工作方案》及年度工作要点共同构成新疆AI+政策体系，由自治区工信厅负责"人工智能+制造"具体组织实施。',tags:['新疆','AI+产业集群','特色优势','东数西算'],url:'http://gxt.xinjiang.gov.cn/gxt/tzgg/202605/e27dcd9d324b4cbc9f2308ddb5753ce8.shtml'},
+{id:111,t:'policy',lv:'省级',dm:'智能制造',nm:'新疆维吾尔自治区虚拟现实和工业应用融合发展实施方案(2023-2026年)',dn:'新疆维吾尔自治区工业和信息化厅',yr:2023,docNo:'新工信软服〔2023〕3号',desc:'新疆VR与工业应用融合方案，推动虚拟现实技术在制造业等工业领域的深度融合应用。',detail:'2023年4月由自治区工信厅印发，贯彻落实工信部《虚拟现实与行业应用融合发展行动计划(2022-2026年)》。推动VR/AR/MR技术在制造业研发设计、生产制造、运维服务等环节的深度应用。是新疆早期推动新一代信息技术与制造业融合的标志性文件，为后续"人工智能+"政策体系奠定基础。',tags:['新疆','虚拟现实','工业应用','融合发展'],url:'http://gxt.xinjiang.gov.cn/gxt/tzgg/202304/9abfc4c90fae46a492659480c5e345b8.shtml'},
+{id:112,t:'standard',lv:'省级',dm:'工业AI',nm:'江苏省人工智能产业标准体系建设指南(2025版)',dn:'江苏省工信厅等',yr:2025,docNo:'-',desc:'江苏AI产业标准化路线图，对接国家AI综合标准化体系，构建覆盖基础通用、关键技术、行业应用三层标准框架，支撑"1650"现代产业体系。',detail:'2025年9月正式发布。核心内容：(1)标准体系框架——基础通用标准(术语、参考架构、测试评估)、关键技术开发标准(算力、算法、数据)、行业应用标准(制造、医疗、教育等)；(2)对接国家《人工智能产业综合标准化体系建设指南》，结合江苏"1650"产业体系实际需求；(3)提出重点研制标准清单和实施路径。是江苏首个AI领域标准化专项指南，为全省AI+制造评估认证提供标准依据。',tags:['江苏','AI标准','1650体系','标准化指南'],url:'http://www.jiangsu.gov.cn/art/2025/9/9/art_90848_11637467.html'},
+{id:113,t:'policy',lv:'省级',dm:'工业AI',nm:'江苏省"人工智能+制造"实施方案',dn:'江苏省工信厅',yr:2026,docNo:'-',desc:'江苏AI深度赋能制造业实施方案，提出到2027年规上工业企业AI诊断全覆盖、100个AI应用标杆、100个行业高质数据集、10个工业大模型深度应用。',detail:'2026年6月由省工信厅印发，贯彻工信部等八部门"人工智能+制造"专项行动实施意见。核心目标：到2027年，规上工业企业基本实现"人工智能+制造"诊断全覆盖。22条具体举措包括：(1)AI诊断全覆盖——为全省规上工业企业提供AI应用诊断服务；(2)工业大模型——推动10个以上工业大模型在行业深度应用；(3)工业智能体——推出100个左右高水平工业智能体；(4)数据集建设——建设100个左右行业高质量数据集；(5)标杆选树——选树不少于100个人工智能应用标杆；(6)智能工厂——引导推动10000家基础级以上智能工厂建设。',tags:['江苏','AI+制造','工业大模型','智能体'],url:'http://gxt.jiangsu.gov.cn/art/2026/6/10/art_6299_11783503.html'},
+{id:114,t:'indicator',lv:'省级',dm:'智能制造',nm:'江苏省企业数字化转型通用评估指标体系(2025年版)',dn:'江苏省工信厅',yr:2025,docNo:'-',desc:'江苏企业数字化转型评估指标，2个一级指标、10个二级指标、每项6等级采集，用于企业自评和智能工厂申报前置测评。',detail:'根据工信部《制造业数字化转型通用评估指标体系》制定，结合江苏产业特点。指标构成：(1)2个一级指标——数字化转型通用能力、数字化转型行业特色；(2)10个二级指标——研发设计数字化水平、生产制造数字化水平、供应链数字化水平、营销服务数字化水平、设备设施联网水平、数据资源开发利用水平、信息安全保障水平、智能化技术应用水平等；(3)每个二级指标设置6个等级采集项(L1-L6)。企业测评分数>=50分方可进入智能工厂等级自评测环节。是智能工厂梯度培育的核心前置评估工具。',tags:['江苏','评估指标','数字化转型','L1-L6'],url:'http://www.njgl.gov.cn/ztzl47815/yhyshjzc/fczc/202502/P020250207422509708273.pdf'},
+{id:115,t:'standard',lv:'省级',dm:'智能制造',nm:'江苏省智能工厂梯度建设要素条件(2025年版)',dn:'江苏省工信厅',yr:2025,docNo:'-',desc:'江苏智能工厂四级梯度建设标准，明确基础级、先进级、卓越级、领航级智能工厂的要素条件和建设要求。',detail:'根据工信部等部委智能工厂梯度培育文件精神，结合江苏产业特点制定。四级梯度体系：(1)基础级——规模以上工业企业，关键技术装备安全可控，建立智能工厂统一管理平台；(2)先进级——在基础级之上，实现设计-生产-管理的全流程数字化；(3)卓越级——实现跨业务跨系统的数据融合与智能决策；(4)领航级——行业标杆，输出可复制的解决方案。配套《江苏省智能工厂梯度建设典型场景企业自评价参考(2025年版)》，方便企业快速自评。是省内智能工厂申报认定的核心依据文件。',tags:['江苏','智能工厂','梯度建设','四级标准'],url:'http://gxt.jiangsu.gov.cn/module/download/downfile.jsp?classid=0&filename=5e3737cbf059466aa3f2afba000f1d15.docx'},
+{id:116,t:'standard',lv:'省级',dm:'工业AI',nm:'关于印发《江西省制造业企业智能化应用水平评估指南(2026版)》的通知',dn:'江西省工信厅',yr:2026,docNo:'-',desc:'江西AI+制造评估指南，构建"5大方向、30个场景"评估体系，含AI应用就绪度评估和场景智能化改造评估双维度，分行业明确评估重点，引导企业以评促建。',detail:'2026年6月26日由省工信厅印发，贯彻工信部等八部门"人工智能+制造"专项行动实施意见。一、评估体系：5大方向30个场景——(1)研发设计5项：研发需求智能分析、研发项目智能管理、智能辅助产品设计、智能辅助工艺设计、知识沉淀智能管理；(2)中试验证4项：中试方案制定、工艺验证智能优化、产品验证智能优化、样品试制智能管理；(3)生产制造10项：AI视觉巡检、智能排产、柔性生产制造、智能零件分拣产线监测、工艺工况参数优化、产品质量智能追溯、装备远程故障诊断、安全生产智能监控、能源智能优化调度、环保排放智能管控；(4)营销服务4项：智能营销与品牌运营、智能客户服务、市场洞察与智能决策、渠道智能协同；(5)运营管理7项：智慧供应链协同、订单跟踪管理、厂区智能巡检、智能化人才适配、网络与系统安全、数据资源建设与治理、算力部署与协同。二、评估方法双维度——(1)AI应用就绪度评估：按场景"应重点评估"条款逐项打分，取5方向所有场景就绪度算术平均值，分高/中/低三级；(2)场景智能化改造评估：从效率提升、成本降低、质量改善、管理优化、服务升级5个通用方向评估改造价值。三、评估结论——就绪度高(H>=80%)直接推进、中(50%<=H<80%)补短板后推进、低(H<50%)先数字化基础建设；场景优先级按就绪度x改造价值矩阵划分(优先实施/择机推进/暂缓/基础加强)。四、落地要求——企业需编制《企业人工智能应用规划报告》，明确分阶段改造路径。配套"1269"重点产业链评估场景参考(附件3)。',tags:['江西','AI+制造评估','5方向30场景','就绪度评估','以评促建'],url:'https://gxt.jiangxi.gov.cn/jxsgyhxxht/gztz/content/content_2071509120233152512.html'},
+{id:117,t:'policy',lv:'省级',dm:'智能制造',nm:'江西省深化制造业数智化转型行动计划(2026-2027年)',dn:'江西省工业强省建设工作领导小组',yr:2026,docNo:'-',desc:'江西制造业数智化转型两年行动计划，提出"万千百十"目标：1万家企业工业互联网升级、1000家企业全流程提升、100个AI典型场景、20个先行区。',detail:'2026年3月由省工业强省建设工作领导小组印发。核心目标——"万千百十"：推动1万家以上企业深度利用工业互联网生态升级、1000家以上企业数字化全流程提升、培育100个人工智能典型应用场景、打造20个产业数字化转型先行区。重点任务：(1)链式改造——重点行业产业链上下游协同数字化；(2)集群式改造——产业集群整体数智化升级；(3)AI+制造——推动人工智能嵌入生产核心环节；(4)完善服务供给和产业生态两个支撑。配套《支持深化制造业数智化转型若干措施》提供省级财政激励。',tags:['江西','数智化转型','万千百十','链式改造'],url:'https://gxt.jiangxi.gov.cn/jxsgyhxxht/zcwj/content/content_2034553060587986944.html'},
+{id:118,t:'policy',lv:'国家级',dm:'智能制造',nm:'场景化、图谱化推进重点行业数字化转型的参考指引(2025版)',dn:'工信部',yr:2025,docNo:'工信厅信发〔2025〕44号',desc:'国家首个以"场景化、图谱化"方式推进重点行业数字化转型的参考指引，提出"一图四清单"方法框架，为行业数字化转型提供系统化路径参考。',detail:'2025年9月由工信部办公厅印发。核心方法论——"一图四清单"：(1)一图——重点行业数字化转型场景图谱，以可视化方式呈现行业全价值链数字化转型关键场景及演进路径；(2)四清单——数据要素清单(行业关键数据资源及流通需求)、知识模型清单(行业核心知识资产及模型化需求)、工具软件清单(行业数字化工具及国产化替代需求)、人才技能清单(行业数字化转型所需人才能力及培养方向)。适用范围覆盖原材料、装备制造、消费品、电子信息等重点行业。该指引是工信部推动行业数字化转型方法论从"框架指导"向"场景落地"转变的标志性文件，为企业提供了"按图索骥"的实操路径，也为各级政府制定行业转型政策提供了标准化工具。',tags:['产业图谱','场景化','一图四清单','数字化转型'],url:'https://www.miit.gov.cn/zwgk/zcjd/art/2025/art_ec745035bf7148c08b7a7caf435ecccf.html'},
+{id:119,t:'framework',lv:'国家级',dm:'智能制造',nm:'数据产业图谱(2024)',dn:'北京交通大学(工信部指导)',yr:2024,docNo:'-',desc:'中国首部数据产业全景图谱，覆盖2197家数据产业企业，构建数据产业分类体系，为数据要素市场建设和工业数据流通提供基础参照。',detail:'2024年8月在2024中国国际大数据产业博览会发布，由北京交通大学牵头编制，工信部指导。图谱首次系统梳理了中国数据产业全景，核心内容：(1)产业分类——将数据产业划分为数据资源、数据技术、数据服务、数据应用、数据安全、数据基础设施六大板块；(2)企业覆盖——收录2197家数据产业相关企业，包括数据采集、存储、计算、分析、流通等全链条；(3)区域分布——呈现数据产业区域集聚特征和差异化发展格局；(4)发展趋势——识别数据要素市场化配置、工业数据驱动智能制造等关键方向。虽非传统政府政策文件，但作为国家级产业研究参考，对工业数据要素流通、数据驱动智能制造具有重要指导价值，是企业理解数据产业生态和政策制定的重要工具。',tags:['数据产业','产业图谱','数据要素','2197企业'],url:'https://www.news.cn/tech/20240829/7e1ee4adcd5c48e18f3b5d5e1f19f07e/c.html'},
+{id:120,t:'policy',lv:'市级',dm:'智能制造',nm:'成都市关于开展制造业新型技术改造城市试点工作的若干政策措施',dn:'成都市人民政府',yr:2025,docNo:'-',desc:'围绕高端化、智能化、绿色化、融合化新型技术改造，推进"智改数转网联"，从扩大投资、融资支持、培育服务商、设备赋能、标杆示范、产业链韧性、产业集群引育7个方面给予支持。',detail:'核心奖补标准：(1)对投资500万元(含)以上且纳入工业投资统计的技改项目，给予一次性最高10万元奖励；(2)对投资2000万元(含)以上的国家示范项目、试点行业项目、其他新型技术改造项目，分别按项目设备投资(含软件)的20%、10%、8%给予补助，单个项目最高补助2000万元。政策围绕高端化、智能化、绿色化、融合化新型技术改造，推进"智改数转网联"新型技改，覆盖技改投资、融资支持、服务商培育、设备赋能、标杆示范、产业链韧性、产业集群引育7大方面。',tags:['成都','新型技改','城市试点','智改数转网联'],url:'https://cdjx.chengdu.gov.cn/gkml/zcjd/1331271757939605504.shtml'},
+{id:121,t:'policy',lv:'市级',dm:'智能制造',nm:'绵阳市支持开展国家制造业新型技术改造城市试点和中小企业数字化转型城市试点若干政策措施',dn:'绵阳市经济和信息化局',yr:2026,docNo:'-',desc:'2026年4月发布，分支持智改数转网联新型技术改造、提升中小企业数字化水平、服务保障三个方面共9条措施，覆盖4个试点行业（电子元器件制造、先进金属战略材料、高端装备制造、现代食品制造）。',detail:'核心举措及奖补标准：(1)智改数转网联新型技术改造——支持行业投资、链式协同改造、重点产业园区整体数字化改造；(2)提升中小企业数字化水平——对改造后达到数字化二级及以上的试点企业，按实际投入分等级给予奖补（最高200万，首批补助比例50%）；支持"小快轻准"数字化产品服务矩阵建设，推动链式转型；(3)服务保障——推动5G+、AI+、机器人+、工业互联网+、北斗+等场景应用；对首次认定为市级数字化车间的企业给予奖励，智能工厂标杆给予更高奖补。覆盖电子元器件制造、先进金属战略材料、高端装备制造、现代食品制造4个试点细分行业。',tags:['绵阳','新型技改','数字化转型','城市试点','小快轻准'],url:'https://jxj.my.gov.cn/mysjxj/c105125/202604/a9284908a66b40bdb75c88bf9c60b018.shtml'},
+{id:122,t:'policy',lv:'市级',dm:'智能制造',nm:'德阳市支持中小企业数字化转型城市试点若干政策措施',dn:'德阳市人民政府',yr:2026,docNo:'-',desc:'2025年9月入选第三批国家中小企业数字化转型试点城市，2026年2月正式发布实施方案。首批145家企业入选试点，覆盖清洁能源装备制造、油气钻采装备制造、"硫—磷—钛—锂—钙"循环产业3个细分行业。',detail:'核心举措及奖补标准：(1)对数字化水平达二级及以上的试点中小企业，按不超过项目实际投资额的70%给予最高100万元补助；(2)对标识解析节点建设企业最高奖励60万元，应用企业每户奖励10万元；(3)对数字化转型贷款给予贴息，每户最高25万元；(4)对数字化达二级且新入规企业奖励25万元，国省级绿色制造称号企业分别奖励55万元、25万元；(5)对链主企业最高奖励200万元，配套企业最高奖励10万元；(6)数字化车间、智能工厂标杆分别奖励20万元、50万元；(7)"智改数转"项目按投资额10%给予最高100万元补助；(8)数字工厂、智能工厂分别奖励20万元、50万元，智慧园区奖励100万元。首批145家试点企业覆盖清洁能源装备制造、油气钻采装备制造、"硫—磷—钛—锂—钙"循环产业3个细分行业。',tags:['德阳','中小企业','数字化转型','智改数转','城市试点'],url:'https://www.guanghan.gov.cn/gk/xxgk/jbxxgk/fd/dtxx/1686456.htm'},
+{id:123,t:'policy',lv:'市级',dm:'智能制造',nm:'宜宾市支持中小企业数字化转型城市试点工作若干政策措施',dn:'宜宾市人民政府办公室',yr:2025,docNo:'-',desc:'2025年8月正式发布，针对4个试点细分行业（智能网联新能源汽车零部件、智能终端、白酒及食品加工、纺织服装）的中小企业，实施7大举措推动梯度数字化改造。',detail:'核心举措及奖补标准：(1)梯度数字化改造——基础级(不高于实际投入30%/单户最高10万)、进阶级(2025年完成单户最高30万/2026年最高25万+降本增效额外10万)、深度级(不高于实际投入50%/单户最高180万)；(2)上云用云——按云服务合同金额50%补助，单户最高5万；(3)金融支持——数字化转型贷款按LPR的50%贴息，单户最高20万/年；(4)链式转型——链主企业带动配套企业转型，链主最高奖补100万；(5)数字化车间和智能工厂——分别奖补15万、30万；(6)服务商激励——综合评价排名前30%的服务商每户奖补20万；(7)"先行先试"激励——率先完成转型的试点企业最高50万先行先试奖补。',tags:['宜宾','中小企业','数字化转型','梯度奖补','城市试点'],url:'https://fg.yibin.gov.cn/jjxx/szjj/202508/t20250814_2142914.html'},
+{id:124,t:'policy',lv:'市级',dm:'智能制造',nm:'南充市支持制造业高质量发展的若干政策措施(修订)',dn:'南充市人民政府',yr:2025,docNo:'-',desc:'大力实施"智改数转"，从中小企业微智改、市级数字化车间/工厂建设、国省级示范申报、数字化平台建设等多维度给予支持。',detail:'核心奖补标准：(1)对微智改项目达到L1级及以上的企业，按不超过设备总投资10%给予最高20万元补助；(2)对市级数字化车间、工厂，按实际投资额15%分别给予最高100万元、200万元补助；(3)对国、省级"智改数转"试点示范项目/企业，分别给予最高50万元、20万元奖励；(4)对备案的产业链数字化转型平台、工业互联网平台按比例给予补助。同时配套绿色化发展相关奖补。',tags:['南充','制造业高质量','微智改','数字化车间'],url:'https://www.nanchong.gov.cn/jxj/zwxx/zcwj/qtwj/202509/t20250928_2269838.html'},
+{id:125,t:'policy',lv:'市级',dm:'智能制造',nm:'达州市推动工业企业转型升级相关政策措施',dn:'达州市人民政府',yr:2026,docNo:'-',desc:'围绕工业企业转型升级，从传统产业技改、"智改数转"项目建设、国省市三级示范称号认定等多维度给予奖补。',detail:'核心奖补标准：(1)对设备投资额500万元以上的传统产业技改项目，按设备投资额10%给予最高200万元激励；(2)对"智改数转"项目投资50万元以上、达到L2级及以上的，按设备投资额20%给予最高100万元激励；(3)对获得国家、省数字化相关示范称号的企业，分别给予100万元、30万元激励；(4)对市级"智改数转"示范企业，给予每户10万元激励。配套开展制造业数字化转型"揭榜"行动，打造"智改数转"示范。',tags:['达州','转型升级','智改数转','揭榜行动'],url:'https://www.dazhou.gov.cn/news-show-268856.html'},
+{id:126,t:'policy',lv:'市级',dm:'智能制造',nm:'雅安市制造业智能化改造数字化转型支持政策',dn:'雅安市人民政府办公室',yr:2024,docNo:'-',desc:'围绕工业"智改数转"，从企业智能化数字化改造、企业上云、产业链和集群数字化转型三个核心维度给予支持。',detail:'核心奖补标准：(1)对企业智能化改造数字化转型项目，按项目实际投资额的20%予以奖补，单个企业最高500万元；(2)对企业核心业务能力上云，按照"算力券"政策给予补贴；(3)对龙头企业供应链数字化管理、产业集群数字化转型、重点园区数字基础设施升级给予支持。覆盖雅安市登记注册、依法纳税、具有独立法人资格的工业企业，以及开展"智改数转"服务的第三方机构。',tags:['雅安','智改数转','20%奖补','算力券'],url:'https://www.yaan.gov.cn/zhangzhe/zfxxgk/6871c439d36db09180b4f922171347e0.html'},
+{id:127,t:'policy',lv:'市级',dm:'智能制造',nm:'资阳市支持工业智能化改造数字化转型八条政策措施(修订)',dn:'资阳市人民政府办公室',yr:2026,docNo:'-',desc:'围绕工业智能化改造数字化转型，从夯实数字基础底座、强化示范引领成效两个核心维度，制定8条政策措施。',detail:'核心奖补标准：(1)对新认定为国家级5G工厂的企业，给予100万元一次性奖励；(2)对通过省级验收的工业互联网标识解析节点项目，按投资额30%给予最高100万元补助；(3)对国家级、省级智能制造示范工厂，分别给予50万元、30万元奖励；优秀场景分别给予20万元、10万元奖励；(4)对两化融合贯标AA级、AAA级企业，分别给予10万元、20万元奖励；(5)对国家级、省级绿色工厂、零碳工厂，分别给予50万元、30万元奖励。覆盖5G工厂、工业互联网标识解析、智能制造示范、两化融合贯标、绿色制造等多个领域。',tags:['资阳','八条措施','5G工厂','标识解析'],url:'http://www.ziyang.gov.cn/zysrmzf/c00002/pc/content/content_2037073170117881856.html'},
+{id:128,t:'policy',lv:'市级',dm:'智能制造',nm:'攀枝花市加快制造业数字化转型智能化升级行动计划(2023-2027年)',dn:'攀枝花市人民政府办公室',yr:2023,docNo:'-',desc:'制定2023-2027年制造业数字化转型智能化升级行动计划，从数字基础设施建设、企业数字化改造、智能制造示范、工业互联网平台建设等维度给予配套奖补。',detail:'核心内容：(1)围绕制造业数字化转型智能化升级，从数字基础设施建设、企业数字化改造、智能制造示范、工业互联网平台建设等多个维度给予配套奖补；(2)市本级惠企政策中包含针对工业企业技改、数字化转型相关的奖补事项，由市经济和信息化局负责落实。配套市县(区)级惠企政策事项清单(2026年版)，明确总体目标、重点任务和保障措施。',tags:['攀枝花','数字化转型','智能化升级','行动计划'],url:'http://tz.panzhihua.gov.cn/uploadfiles/202310/13/2023101315443211377836.pdf'},
+{id:129,t:'policy',lv:'市级',dm:'智能制造',nm:'广元市技改、设备购买、固定资产投资、新建项目奖补政策',dn:'广元市人民政府',yr:2025,docNo:'-',desc:'围绕工业企业技改、设备更新、固定资产投资，从中小企业技改补助、绿色产业项目支持等多维度给予奖补。',detail:'核心奖补标准：(1)规上中小工业企业设备投资100-500万元的，按10%给予最高50万元补助，不设下限；(2)固投超5000万元的绿色产业项目，给予用地预审"绿色通道"及最高50万元审批代办补贴。推动工业企业转型升级和数字化改造。',tags:['广元','技改奖补','设备投资','绿色产业'],url:'https://jxj.cngy.gov.cn/zsk/show.html?id=b7ad15884ae94cf0916cda3920e5af65'},
+{id:130,t:'policy',lv:'市级',dm:'智能制造',nm:'遂宁市技改、设备购买、固定资产投资、新建项目奖补政策',dn:'遂宁市人民政府',yr:2025,docNo:'-',desc:'围绕工业数字化技改、固定资产投资，从"5G+工业互联网"项目建设、企业固投激励等多维度给予奖补。',detail:'核心奖补标准：(1)"5G+工业互联网"项目设备投资超200万元的，按15%给予最高200万元补助；(2)对年度固投超5亿元的企业，给予其高管团队最高30万元个税返还。推动工业企业数字化转型和智能化改造。',tags:['遂宁','5G+工业互联网','技改奖补','固投激励'],url:'https://sjxj.suining.gov.cn/xinwen/show/82bb6fce62d62fe91b2492e1fc09b634.html'},
+{id:131,t:'policy',lv:'市级',dm:'智能制造',nm:'内江市技改、设备购买、固定资产投资、新建项目奖补政策',dn:'内江市人民政府',yr:2025,docNo:'-',desc:'围绕重点产业技改、固定资产投资，从汽车零部件产业技改补助、机械制造项目厂房建设补贴等多维度给予奖补。',detail:'核心奖补标准：(1)汽车零部件技改项目设备投资超1000万元的，按9%给予最高300万元补助，采购本地整车企业配套设备的补贴比例提高至12%；(2)固投超2亿元的机械制造项目，给予最高150万元厂房建设补贴。推动重点产业数字化转型和智能化改造。',tags:['内江','技改奖补','汽车零部件','厂房补贴'],url:'https://www.neijiang.gov.cn/jxj/xxgk/zhengc/qtwj/202409/f4187cfdde0a4edd8e924d30c2be8180.shtml'},
+{id:132,t:'policy',lv:'市级',dm:'智能制造',nm:'乐山市技改、设备购买、固定资产投资、新建项目奖补政策',dn:'乐山市人民政府',yr:2025,docNo:'-',desc:'围绕重点产业技改、数字化转型，从文旅装备产业技改补助、工业企业设备更新支持等多维度给予奖补。',detail:'核心奖补标准：(1)文旅装备技改项目给予相关设备投资补助，推动文旅装备产业数字化、智能化改造；(2)围绕工业企业技改、设备更新，配套相关奖补政策，推动制造业转型升级。',tags:['乐山','技改奖补','文旅装备','设备更新'],url:'https://www.leshan.gov.cn/lsswszf/gsgg/92337815/769854407635013.html'},
+{id:133,t:'policy',lv:'市级',dm:'智能制造',nm:'眉山市关于支持"两新"融合大力发展新质生产力的若干政策',dn:'眉山市人民政府',yr:2026,docNo:'-',desc:'围绕科技创新和产业创新深度融合，从创新券支持、高能级创新平台建设、国省级创新平台认定等多维度给予补助。',detail:'核心奖补标准：(1)对科技企业购买科技服务，按不超过合同金额60%给予最高10万元补助；对科技服务机构按合同金额15%给予最高50万元补助；(2)对首次认定的国家级、省级重点实验室、中试研发平台、技术创新中心，一次性补助500万元、300万元。支持新质生产力发展，推动工业企业数字化转型和智能化改造。',tags:['眉山','两新融合','新质生产力','创新平台'],url:'https://www.ms.gov.cn/info/6849/1196578.htm'},
+{id:134,t:'policy',lv:'市级',dm:'智能制造',nm:'广安市推动工业企业智能化数字化转型相关政策措施',dn:'广安市经济和信息化局',yr:2025,docNo:'-',desc:'围绕工业企业"智改数转"，从省级专项资金高效拨付、市级配套奖补政策落实等多维度推动企业智能化数字化转型。',detail:'核心内容：(1)创新优化省级智改数转专项资金拨付机制，省级资金到达市级后，首批70%资金当天到当天付，直达企业，剩余30%待验收合格后拨付；(2)配套市级相关奖补政策，支持工业企业实施"智改数转"项目，确保政策红利直达快享。',tags:['广安','智改数转','资金直达','市级配套'],url:'https://www.guang-an.gov.cn/zfxxgk/c104189/pc/content/content_1867049260343812096.html'},
+{id:135,t:'policy',lv:'市级',dm:'智能制造',nm:'巴中市支持工业高质量发展若干政策措施(含恩阳区)',dn:'巴中市人民政府办公室/恩阳区人民政府',yr:2026,docNo:'-',desc:'围绕工业高质量发展，从"智改数转"项目建设、智能制造评估诊断、数字化标杆创建、企业扩能增产激励等多维度给予奖补。',detail:'核心奖补标准：(1)对完成智能制造评估诊断并达到L2级及以上的规上工业企业给予3万元奖励；(2)对"智改数转"项目达到L2级及以上的规上工业企业，按设备投资额30%给予最高10万元奖励；(3)对首次创建国省级智能工厂、5G工厂、两化融合贯标企业等数字化标杆，分别给予30万元、20万元奖励；(4)对工业生产规模1亿元以上且同比增长20%以上的企业，给予10-25万元激励。含恩阳区政策和市级政策。',tags:['巴中','工业高质量','智改数转','恩阳区'],url:'https://www.cnbz.gov.cn/ztxx/zxzt/bzszqskzcfw/zcwj/13444041.html'},
+{id:136,t:'policy',lv:'市级',dm:'智能制造',nm:'凉山州推动大规模设备更新和消费品以旧换新实施方案',dn:'凉山州人民政府',yr:2024,docNo:'-',desc:'结合"智改数转"重点工作，实施设备更新四大行动，对工业企业设备更新、智能化改造、数字化转型项目给予相关支持。',detail:'核心内容：结合"智改数转"重点工作，实施设备更新、消费品以旧换新、回收循环利用、标准提升四大行动。对工业企业设备更新、智能化改造、数字化转型项目给予相关支持，总投资达到300万以上的项目可申报地方政策补贴。推动制造业发展壮大，加快发展新质生产力。',tags:['凉山','设备更新','智改数转','四行动'],url:'https://www.lsz.gov.cn/xxgk/zcwj/zzffw/202408/W020240809355234388058.pdf'},
+{id:137,t:'indicator',lv:'国家级',dm:'智能制造',nm:'中小企业数字化水平评测指标(2024年版)',dn:'工业和信息化部办公厅',yr:2024,docNo:'工信厅企业〔2024〕56号',desc:'从数字化基础、经营、管理、成效四个维度综合评估中小企业数字化发展水平，是工信部中小企业数字化转型城市试点的核心评测依据，也是专精特新企业认定中"数字化水平"指标的评价依据。',detail:'核心架构：(1)数字化基础、管理、成效三个维度——由3个一级指标、9个二级指标、15个采集项组成，采用评分方式确定等级，分为一级(20-40分)、二级(40-60分)、三级(60分以上)三个等级；(2)数字化经营维度——采用场景等级判定方式，从研发设计、生产制造、经营管理、售后服务4个经营环节判定数字化场景等级，分为L1(基础应用)、L2(集成应用)、L3(优化创新)三个等级；(3)综合判定——取两类评价结果中的较低等级作为企业数字化水平等级。2022年版发布以来，已有24万余家中小企业运用该评测指标进行线上评测。评测系统登录地址：https://zjtx.miit.gov.cn 数字化转型板块。',tags:['中小企业','数字化评测','四级维度','三级等级','专精特新'],url:'https://www.gov.cn/zhengce/zhengceku/202409/content_6973446.htm'},
+{id:138,t:'indicator',lv:'国家级',dm:'智能制造',nm:'中小企业数字化转型试点城市试点企业数字化水平评测指南(2024年版)',dn:'工业和信息化部中小企业局',yr:2024,docNo:'工企业函〔2024〕239号',desc:'对应《中小企业数字化水平评测指标(2024年版)》，为中小企业数字化转型试点城市试点企业数字化水平评测提供规范化操作指南，提升评测的科学性和系统性。',detail:'核心内容：(1)明确试点企业数字化水平评测的组织实施流程、评测方法和结果判定规则；(2)对应《评测指标(2024年版)》的四维架构，细化现场评定操作要求，确保各试点城市评测标准统一；(3)明确试点企业数字化水平等级从转型前到转型后的提升要求，作为城市试点绩效评价的重要依据；(4)由工业和信息化部中小企业局制定，经商财政部经济建设司，指导各省中小企业主管部门和试点城市参照落实。该指南是全国中小企业数字化转型城市试点工作的核心操作规范。',tags:['中小企业','城市试点','评测指南','现场评定'],url:'https://www.miit.gov.cn/jgsj/qyj/wjfb/art/2024/art_1d6fa744a65146748c21d8f8a7850475.html'},
+{id:139,t:'framework',lv:'国家级',dm:'智能制造',nm:'中小企业数字化转型指南',dn:'工业和信息化部办公厅',yr:2022,docNo:'工信厅信发〔2022〕33号',desc:'面向中小企业、数字化转型服务供给方和地方各级主管部门，从增强企业转型能力、提升转型供给水平、加大转型政策支持三方面提出14条具体举措，为中小企业数字化转型提供系统指引。',detail:'核心内容：(1)增强企业转型能力——开展数字化评估、推进管理数字化、开展业务数字化、融入数字化生态、优化数字化实践等5条举措；(2)提升转型供给水平——增强供需对接、丰富产品服务、完善培训服务、优化咨询服务等4条举措；(3)加大转型政策支持——加强转型引导、加大资金支持、推广典型模式、强化公共服务等5条举措。《指南》强调中小企业数字化转型应坚持"小快轻准"原则，注重投入产出效益，分阶段推进，与《中小企业数字化水平评测指标》配套使用。',tags:['中小企业','数字化转型','14条举措','小快轻准'],url:'https://www.gov.cn/zhengce/zhengceku/2022-11/09/content_5725642.htm'}];
+
+// ==================== RENDER ====================
+function getTc(item){
+  if(item.t==='policy'){return item.lv==='国家级'?'t-national':item.lv==='省级'?'t-provincial':'t-city';}
+  if(item.t==='standard')return 't-standard';
+  if(item.t==='indicator')return 't-indicator';
+  if(item.t==='framework')return 't-framework';
+  return '';
+}
+function tg(c,s){return '<span class="tag '+c+'">'+s+'</span>';}
+function tgs(arr){
+  var m={};
+  m['智能制造']='tag-gj';m['工业AI']='tag-zb';m['工业互联网']='tag-sj';m['数字化转型']='tag-zb';m['标准体系']='tag-kj';m['工业安全']='tag-zb';
+  var cm={'国家级':'tag-gj','省级':'tag-sj','市级':'tag-sj2','国家标准':'tag-bz','行业标准':'tag-zb','团体标准':'tag-zb'};
+  return arr.map(function(t){var cls=cm[t]||m[t]||'tag-gj';return tg(cls,t);}).join('');
+}
+
+function makeCard(item){
+  var lvTg=tg({'国家级':'tag-gj','省级':'tag-sj','市级':'tag-sj2','国家标准':'tag-bz','行业标准':'tag-zb','团体标准':'tag-zb'}[item.lv]||'tag-gj',item.lv);
+  var dmTg=tg('tag-zb',item.dm);
+  var tagHtml=tgs(item.tags||[]);
+  var infoH='';
+  if(item.stdCode&&item.stdCode!=='-')infoH+='<span>标准号: '+item.stdCode+'</span>';
+  if(item.docNo&&item.docNo!=='-')infoH+='<span>文号: '+item.docNo+'</span>';
+  if(!item.stdCode)infoH+='<span>发布: '+item.dn+'</span>';
+  else infoH+='<span>发布: '+item.dn+'</span>';
+  infoH+='<span>年份: '+item.yr+'</span>';
+
+  var levelsH='';
+  if(item.levels&&item.levels.length){
+    levelsH='<div class="level-flow">'+item.levels.map(function(l,i){
+      return '<div class="level-node"><div class="ln">'+l.n+'</div><div class="lc">'+l.c+'</div><div class="ld">'+l.d+'</div></div>'+(i<item.levels.length-1?'<div class="level-arrow">\u2192</div>':'');
+    }).join('')+'</div>';
+  }
+
+  if(item.t==='framework'){
+    var fwUrlBtn=item.url?'<a class="view-link" href="'+item.url+'" target="_blank" rel="noopener">📄 查看原文</a>':'';
+    return '<div class="framework-card"><div class="tag-row">'+lvTg+dmTg+tagHtml+'</div><h3 class="cd">'+item.nm+'</h3><div class="info-row">'+infoH+'</div>'+levelsH+'<div class="desc">'+item.desc+'</div><div style="margin-top:10px;font-size:12.5px;color:var(--text2);line-height:1.8">'+item.detail+'</div>'+fwUrlBtn+'</div>';
+  }
+
+  var cls=item.t==='standard'?'standard-card':'policy-card';
+  var extra=cls==='standard-card'&&item.stdCode&&item.stdCode!=='-'?'<div class="std-code">'+item.stdCode+'</div>':'';
+  var urlBtn=item.url?'<a class="view-link" href="'+item.url+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">📄 查看原文</a>':'';
+  return '<div class="'+cls+' '+getTc(item)+'" onclick="te(this)"><div class="tag-row">'+lvTg+dmTg+tagHtml+'</div><h3 class="cd">'+item.nm+'</h3>'+extra+'<div class="info-row">'+infoH+'</div><div class="desc">'+item.desc+'</div>'+levelsH+'<div class="expand-content">'+item.detail+'</div>'+urlBtn+'<div class="expand-hint">\u70b9\u51fb\u5c55\u5f00\u8be6\u60c5 \u25bc</div></div>';
+}
+
+function te(el){
+  el.classList.toggle('expanded');
+  var h=el.querySelector('.expand-hint');
+  if(h)h.textContent=el.classList.contains('expanded')?'\u70b9\u51fb\u6536\u8d77 \u25b2':'\u70b9\u51fb\u5c55\u5f00\u8be6\u60c5 \u25bc';
+}
+
+// ==================== FILTER ====================
+function fd(){
+  var kw=(document.getElementById('si').value||'').toLowerCase().trim();
+  var lv=document.getElementById('f1').value;
+  var dm=document.getElementById('f2').value;
+  var yr=document.getElementById('f3').value;
+  return D.filter(function(item){
+    if(kw){
+      var s=[item.nm,item.desc,item.detail,item.stdCode||'',item.docNo||'',item.dn,item.dm,(item.tags||[]).join(' '),item.lv].join(' ').toLowerCase();
+      if(s.indexOf(kw)===-1)return false;
+    }
+    if(lv&&item.lv!==lv)return false;
+    if(dm&&item.dm!==dm)return false;
+    if(yr){
+      if(yr==='2019-2020'){var yi=parseInt(item.yr);if(yi<2019||yi>2020)return false;}
+      else if(yr==='2021-2023'){var yi2=parseInt(item.yr);if(yi2<2021||yi2>2023)return false;}
+      else if(item.yr!==yr)return false;
+    }
+    return true;
+  });
+}
+
+function render(){
+  var filtered=fd();
+  var at=document.querySelector('.tab.active').dataset.tab;
+
+  // stats
+  document.getElementById('s0').textContent=D.length;
+  document.getElementById('s1').textContent=D.filter(function(d){return d.t==='policy';}).length;
+  document.getElementById('s2').textContent=D.filter(function(d){return d.t==='standard';}).length;
+  document.getElementById('s3').textContent=D.filter(function(d){return d.t==='indicator';}).length;
+  document.getElementById('s4').textContent=D.filter(function(d){return d.t==='framework';}).length;
+
+  document.getElementById('cb-all').textContent=D.length;
+  document.getElementById('cb-policy').textContent=D.filter(function(d){return d.t==='policy';}).length;
+  document.getElementById('cb-standard').textContent=D.filter(function(d){return d.t==='standard';}).length;
+  document.getElementById('cb-indicator').textContent=D.filter(function(d){return d.t==='indicator';}).length;
+  document.getElementById('cb-framework').textContent=D.filter(function(d){return d.t==='framework';}).length;
+
+  var tf;
+  if(at==='all')tf=filtered;
+  else if(at==='policy')tf=filtered.filter(function(d){return d.t==='policy';});
+  else if(at==='standard')tf=filtered.filter(function(d){return d.t==='standard';});
+  else if(at==='indicator')tf=filtered.filter(function(d){return d.t==='indicator';});
+  else if(at==='framework')tf=filtered.filter(function(d){return d.t==='framework';});
+  else if(at==='compare'){renderCmp(filtered);return;}
+
+  var g=document.getElementById('g-'+at);
+  if(!g)return;
+  if(!tf.length){g.innerHTML='<div class="empty-state"><div class="icon">&#128196;</div><p>\u6ca1\u6709\u627e\u5230\u5339\u914d\u7684\u6761\u76ee\uff0c\u8bf7\u8c03\u6574\u641c\u7d22\u6761\u4ef6</p></div>';return;}
+  g.innerHTML=tf.map(makeCard).join('');
+}
+
+function renderCmp(filtered){
+  var c=document.getElementById('g-compare');
+  if(!filtered.length){c.innerHTML='<div class="empty-state"><div class="icon">&#128196;</div><p>\u6ca1\u6709\u627e\u5230\u5339\u914d\u7684\u6761\u76ee</p></div>';return;}
+  var tm={policy:'\u653f\u7b56\u6587\u4ef6',standard:'\u8bc4\u4f30\u6807\u51c6',indicator:'\u6307\u6807\u4f53\u7cfb',framework:'\u68af\u5ea6\u6846\u67b6'};
+  var cc={'\u56fd\u5bb6\u7ea7':'cat-national','\u7701\u7ea7':'cat-provincial','\u5e02\u7ea7':'cat-provincial','\u56fd\u5bb6\u6807\u51c6':'cat-standard','\u884c\u4e1a\u6807\u51c6':'cat-indicator','\u56e2\u4f53\u6807\u51c6':'cat-indicator'};
+  var rows=filtered.map(function(item){
+    return '<tr><td class="'+(cc[item.lv]||'')+'" style="font-weight:600;font-size:11px;white-space:nowrap">'+item.lv+'</td><td style="font-size:11px;white-space:nowrap">'+(tm[item.t]||'')+'</td><td style="font-weight:500;font-size:12px">'+item.nm+'</td><td style="font-family:monospace;font-size:11px;white-space:nowrap">'+(item.stdCode||item.docNo||'-')+'</td><td style="font-size:11px">'+item.dm+'</td><td style="font-size:11px;white-space:nowrap">'+item.dn+'</td><td style="font-size:11px;white-space:nowrap">'+item.yr+'</td><td style="font-size:11px;color:var(--text2);max-width:300px">'+item.desc.substring(0,70)+(item.desc.length>70?'...':'')+'</td></tr>';
+  }).join('');
+  c.innerHTML='<table class="compare-table"><thead><tr><th>\u5c42\u7ea7</th><th>\u7c7b\u578b</th><th>\u540d\u79f0</th><th>\u6807\u51c6\u53f7/\u6587\u53f7</th><th>\u9886\u57df</th><th>\u53d1\u5e03\u673a\u6784</th><th>\u5e74\u4efd</th><th>\u7b80\u4ecb</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ==================== EVENTS ====================
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    tab.classList.add('active');
+    document.querySelectorAll('.content-area').forEach(function(c){c.classList.remove('active');});
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+    var tabNames={all:'全部',policy:'政策文件',standard:'评估标准',indicator:'指标体系',framework:'梯度框架',compare:'对比总览'};
+    recordQuery('切换: '+(tabNames[tab.dataset.tab]||tab.dataset.tab));
+    render();
+  });
+});
+document.getElementById('si').addEventListener('input',function(){recordQuery('搜索: '+(this.value||'').substring(0,20));render();});
+document.getElementById('f1').addEventListener('change',function(){recordQuery('筛选层级: '+(this.value||'全部'));render();});
+document.getElementById('f2').addEventListener('change',function(){recordQuery('筛选领域: '+(this.value||'全部'));render();});
+document.getElementById('f3').addEventListener('change',function(){recordQuery('筛选年份: '+(this.value||'全部'));render();});
+
+// ==================== 四川专区快捷按钮 ====================
+var scActive=false;
+var scKw=['四川','成都','绵阳','德阳','南充','眉山','泸州','遂宁','宜宾','自贡','达州','雅安','资阳','攀枝花','广元','内江','乐山','广安','巴中','凉山'];
+function scClick(){
+  var btn=document.getElementById('sc-btn');
+  var input=document.getElementById('si');
+  if(scActive){
+    recordQuery('退出四川专区');
+    input.value='';
+    btn.classList.remove('active');
+    btn.innerHTML='&#127795; 四川专区';
+    scActive=false;
+  }else{
+    btn.classList.add('active');
+    btn.innerHTML='&#10005; 退出专区';
+    scActive=true;
+    recordQuery('进入四川专区');
+  }
+  render();
+}
+
+// Override fd() to support Sichuan zone filter
+var _origFd=fd;
+fd=function(){
+  var r=_origFd();
+  if(scActive){
+    r=r.filter(function(item){
+      var s=[item.nm,item.desc,item.detail,item.dn,(item.tags||[]).join(' '),item.lv].join(' ').toLowerCase();
+      for(var i=0;i<scKw.length;i++){
+        if(s.indexOf(scKw[i].toLowerCase())!==-1)return true;
+      }
+      return false;
+    });
+  }
+  return r;
+};
+
+// ==================== STATS ====================
+var BASE_VISITS=0;  // 历史基数：每次部署前从线上统计面板读取累计值并回填此处
+var BASE_QUERIES=0; // 历史基数：同上
+var SK={v:'pq_visits',q:'pq_queries',h:'pq_history',dv:'pq_dv',dq:'pq_dq',dd:'pq_dd'};
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function loadSk(k){try{return parseInt(localStorage.getItem(k)||'0',10);}catch(e){return 0;}}
+function saveSk(k,v){try{localStorage.setItem(k,''+v);}catch(e){}}
+function loadArr(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch(e){return[];}}
+function saveArr(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+function recordVisit(){
+  var v=loadSk(SK.v)+1;saveSk(SK.v,v);
+  var dd=localStorage.getItem(SK.dd);
+  if(dd!==todayStr()){localStorage.setItem(SK.dd,todayStr());saveSk(SK.dv,1);}
+  else{saveSk(SK.dv,loadSk(SK.dv)+1);}
+  updateCounterUI();
+}
+
+function recordQuery(action){
+  var q=loadSk(SK.q)+1;saveSk(SK.q,q);
+  var dd=localStorage.getItem(SK.dd);
+  if(dd!==todayStr()){localStorage.setItem(SK.dd,todayStr());saveSk(SK.dq,1);}
+  else{saveSk(SK.dq,loadSk(SK.dq)+1);}
+  var h=loadArr(SK.h);
+  h.unshift({t:new Date().toISOString().substring(11,19),a:action,d:todayStr()});
+  if(h.length>50)h=h.slice(0,50);
+  saveArr(SK.h,h);
+  updateCounterUI();
+}
+
+function updateCounterUI(){
+  document.getElementById('vc').textContent=BASE_VISITS+loadSk(SK.v);
+  document.getElementById('qc').textContent=BASE_QUERIES+loadSk(SK.q);
+}
+
+function showStats(){
+  var lv=loadSk(SK.v),lq=loadSk(SK.q);
+  document.getElementById('mv-visits').textContent=BASE_VISITS+lv;
+  document.getElementById('mv-queries').textContent=BASE_QUERIES+lq;
+  document.getElementById('mv-today-v').textContent=loadSk(SK.dv);
+  document.getElementById('mv-today-q').textContent=loadSk(SK.dq);
+  var bv=document.getElementById('mv-base-info');
+  if(bv){bv.textContent=BASE_VISITS||BASE_QUERIES?'(含历史基数: 访问+'+BASE_VISITS+' / 查询+'+BASE_QUERIES+')':'';}
+  var h=loadArr(SK.h);
+  var list=document.getElementById('recentList');
+  if(!h.length){list.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0">暂无查询记录</div>';}
+  else{list.innerHTML=h.slice(0,20).map(function(r){return '<div class="recent-item"><span>'+r.a+'</span><span class="time">'+r.d+' '+r.t+'</span></div>';}).join('');}
+  document.getElementById('statsModal').classList.add('show');
+}
+function hideStats(){document.getElementById('statsModal').classList.remove('show');}
+
+function resetStats(){
+  Object.values(SK).forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
+  updateCounterUI();
+  hideStats();
+}
+
+document.getElementById('statsModal').addEventListener('click',function(e){if(e.target===this)hideStats();});
+
+// ==================== ADMIN PANEL ====================
+var ADMIN_PWD='smart2026';  // 管理密码，可修改
+var _adminEdits=[];  // 暂存新增/编辑的条目
+var _editId=null;    // 当前编辑的条目id（null表示新增）
+
+function getAdminData(){
+  // 合并原始D数组和暂存的编辑
+  var base=D.slice();
+  _adminEdits.forEach(function(e){
+    var idx=base.findIndex(function(x){return x.id===e.id;});
+    if(idx>=0)base[idx]=e; else base.push(e);
+  });
+  base.sort(function(a,b){return a.id-b.id;});
+  return base;
+}
+
+function showAdminPwd(){
+  document.getElementById('adminPwdOverlay').classList.add('show');
+  var inp=document.getElementById('adminPwdInput');
+  inp.value='';
+  setTimeout(function(){inp.focus();},100);
+}
+function hideAdminPwd(){document.getElementById('adminPwdOverlay').classList.remove('show');}
+function checkAdminPwd(){
+  if(document.getElementById('adminPwdInput').value===ADMIN_PWD){
+    hideAdminPwd();
+    showAdmin();
+  }else{
+    document.getElementById('adminPwdInput').style.borderColor='#c62828';
+    document.getElementById('adminPwdInput').value='';
+    setTimeout(function(){document.getElementById('adminPwdInput').style.borderColor='';},1500);
+  }
+}
+function showAdmin(){
+  document.getElementById('adminOverlay').classList.add('show');
+  cancelForm();
+  renderAdminList();
+}
+function hideAdmin(){document.getElementById('adminOverlay').classList.remove('show');}
+document.getElementById('adminOverlay').addEventListener('click',function(e){if(e.target===this)hideAdmin();});
+document.getElementById('adminPwdOverlay').addEventListener('click',function(e){if(e.target===this)hideAdminPwd();});
+
+function showAddForm(){
+  _editId=null;
+  clearForm();
+  document.getElementById('adminFormArea').style.display='';
+}
+function cancelForm(){
+  document.getElementById('adminFormArea').style.display='none';
+  _editId=null;
+}
+function clearForm(){
+  ['af_t','af_lv','af_dm','af_yr','af_nm','af_dn','af_docNo','af_url','af_desc','af_detail','af_tags'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el.tagName==='SELECT')el.selectedIndex=0;
+    else if(id==='af_dm')el.value='智能制造';
+    else if(id==='af_yr')el.value='2026';
+    else el.value='';
+  });
+}
+
+function fillForm(entry){
+  document.getElementById('af_t').value=entry.t||'policy';
+  document.getElementById('af_lv').value=entry.lv||'国家级';
+  document.getElementById('af_dm').value=entry.dm||'智能制造';
+  document.getElementById('af_yr').value=entry.yr||2026;
+  document.getElementById('af_nm').value=entry.nm||'';
+  document.getElementById('af_dn').value=entry.dn||'';
+  document.getElementById('af_docNo').value=entry.docNo||'';
+  document.getElementById('af_url').value=entry.url||'';
+  document.getElementById('af_desc').value=entry.desc||'';
+  document.getElementById('af_detail').value=entry.detail||'';
+  document.getElementById('af_tags').value=(entry.tags||[]).join(',');
+}
+
+function readForm(){
+  var tagsVal=document.getElementById('af_tags').value;
+  var tags=tagsVal?tagsVal.split(/[,，]/).map(function(s){return s.trim();}).filter(Boolean):[];
+  return {
+    t:document.getElementById('af_t').value,
+    lv:document.getElementById('af_lv').value,
+    dm:document.getElementById('af_dm').value||'智能制造',
+    yr:parseInt(document.getElementById('af_yr').value,10)||2026,
+    nm:document.getElementById('af_nm').value.trim(),
+    dn:document.getElementById('af_dn').value.trim(),
+    docNo:document.getElementById('af_docNo').value.trim()||'-',
+    desc:document.getElementById('af_desc').value.trim(),
+    detail:document.getElementById('af_detail').value.trim(),
+    tags:tags,
+    url:document.getElementById('af_url').value.trim()||''
+  };
+}
+
+function saveEntry(){
+  var f=readForm();
+  if(!f.nm){alert('请填写名称');return;}
+  if(!f.desc){alert('请填写摘要');return;}
+  var allData=getAdminData();
+  var newId;
+  if(_editId!==null){
+    newId=_editId;
+  }else{
+    var maxId=0;
+    allData.forEach(function(x){if(x.id>maxId)maxId=x.id;});
+    newId=maxId+1;
+  }
+  var entry={id:newId};
+  for(var k in f)entry[k]=f[k];
+  // 更新暂存
+  var ei=_adminEdits.findIndex(function(x){return x.id===newId;});
+  if(ei>=0)_adminEdits[ei]=entry; else _adminEdits.push(entry);
+  cancelForm();
+  renderAdminList();
+  // 同步更新主页面D数组显示
+  refreshMainData();
+}
+
+function editEntry(id){
+  var allData=getAdminData();
+  var entry=allData.find(function(x){return x.id===id;});
+  if(!entry)return;
+  _editId=id;
+  fillForm(entry);
+  document.getElementById('adminFormArea').style.display='';
+}
+
+function deleteEntry(id){
+  if(!confirm('确认删除条目 #'+id+'？'))return;
+  // 从暂存中移除
+  _adminEdits=_adminEdits.filter(function(x){return x.id!==id;});
+  // 如果是原始D数组的条目，标记删除
+  var di=D.findIndex(function(x){return x.id===id;});
+  if(di>=0){
+    // 在暂存中添加删除标记
+    _adminEdits.push({id:id,_deleted:true});
+  }
+  renderAdminList();
+  refreshMainData();
+}
+
+function refreshMainData(){
+  // 将暂存的编辑合并到D数组并重新渲染主页
+  _adminEdits.forEach(function(e){
+    if(e._deleted){
+      var di=D.findIndex(function(x){return x.id===e.id;});
+      if(di>=0)D.splice(di,1);
+    }else{
+      var di=D.findIndex(function(x){return x.id===e.id;});
+      if(di>=0)D[di]=e; else D.push(e);
+    }
+  });
+  D.sort(function(a,b){return a.id-b.id;});
+  render();
+}
+
+var _typeLabels={policy:'政策',standard:'标准',indicator:'指标',framework:'框架'};
+function renderAdminList(){
+  var allData=getAdminData().filter(function(x){return !x._deleted;});
+  var q=(document.getElementById('adminSearch').value||'').trim().toLowerCase();
+  if(q){
+    allData=allData.filter(function(x){
+      return (x.nm||'').toLowerCase().indexOf(q)>=0||(x.dn||'').toLowerCase().indexOf(q)>=0||(x.tags||[]).join(',').toLowerCase().indexOf(q)>=0;
+    });
+  }
+  document.getElementById('adminCount').textContent='共 '+allData.length+' 条'+(_adminEdits.length?' ('+_adminEdits.length+' 条未部署)':'');
+  var list=document.getElementById('adminList');
+  if(!allData.length){list.innerHTML='<div style="text-align:center;color:#999;padding:20px">无匹配条目</div>';return;}
+  var isNew=function(id){return _adminEdits.some(function(x){return x.id===id&&!x._deleted;})&&D.findIndex(function(x){return x.id===id;})<0;};
+  list.innerHTML=allData.map(function(x){
+    return '<div class="admin-list-item"><span class="ali-id">#'+x.id+'</span><span class="ali-type">'+(_typeLabels[x.t]||x.t)+'</span><span class="ali-name">'+(x.nm||'')+'</span><span class="ali-lv">'+x.lv+'</span>'+(isNew(x.id)?'<span style="color:#2e7d32;font-size:10px;font-weight:700">NEW</span>':'')+'<button class="ali-edit" onclick="editEntry('+x.id+')">编辑</button><button class="ali-del" onclick="deleteEntry('+x.id+')">删除</button></div>';
+  }).join('');
+}
+
+// ===== Export HTML =====
+function escJs(s){
+  if(typeof s!=='string')s=''+s;
+  return s.replace(/\\/g,'\\\\').replace(/'/g,'\\\'');
+}
+function entryToSrc(e){
+  var SQ="'";  // single quote char
+  var tagsStr='['+e.tags.map(function(t){return SQ+escJs(t)+SQ;}).join(',')+']';
+  return '{id:'+e.id+',t:'+SQ+escJs(e.t)+SQ+',lv:'+SQ+escJs(e.lv)+SQ+',dm:'+SQ+escJs(e.dm)+SQ+',nm:'+SQ+escJs(e.nm)+SQ+',dn:'+SQ+escJs(e.dn)+SQ+',yr:'+e.yr+',docNo:'+SQ+escJs(e.docNo)+SQ+',desc:'+SQ+escJs(e.desc)+SQ+',detail:'+SQ+escJs(e.detail)+SQ+',tags:'+tagsStr+',url:'+SQ+escJs(e.url)+SQ+'}';
+}
+
+function exportHTML(){
+  var allData=getAdminData().filter(function(x){return !x._deleted;});
+  if(!allData.length){alert('没有数据可导出');return;}
+  // 读取当前页面完整HTML
+  var html=document.documentElement.outerHTML;
+  // 替换D数组内容
+  var newDataSrc='var D=['+allData.map(entryToSrc).join(',\n')+'];';
+  // 用正则替换 D=[...];
+  html=html.replace(/var D=\[[\s\S]*?\];/,newDataSrc);
+  // 下载
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='智能制造与工业AI政策评估查询系统.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  // 清空暂存
+  _adminEdits=[];
+  renderAdminList();
+}
+
+// ===== Import JSON =====
+function importJSON(){
+  var input=document.createElement('input');
+  input.type='file';
+  input.accept='.json';
+  input.onchange=function(){
+    var file=input.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var data=JSON.parse(reader.result);
+        if(!Array.isArray(data)){alert('JSON格式错误：需要数组格式');return;}
+        var count=0;
+        var maxId=0;
+        D.forEach(function(x){if(x.id>maxId)maxId=x.id;});
+        _adminEdits.forEach(function(x){if(x.id>maxId)maxId=x.id;});
+        data.forEach(function(item){
+          if(!item.nm)return;
+          maxId++;
+          var entry={id:maxId,t:item.t||'policy',lv:item.lv||'市级',dm:item.dm||'智能制造',yr:item.yr||2026,nm:item.nm,dn:item.dn||'',docNo:item.docNo||'-',desc:item.desc||'',detail:item.detail||'',tags:item.tags||[],url:item.url||''};
+          _adminEdits.push(entry);
+          count++;
+        });
+        alert('成功导入 '+count+' 条条目，请点击「导出HTML部署文件」完成部署。');
+        renderAdminList();
+        refreshMainData();
+      }catch(e){alert('JSON解析失败: '+e.message);}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ==================== INIT ====================
+recordVisit();
+render();
+</script>
+</body>
+</html>
